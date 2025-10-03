@@ -19,7 +19,7 @@ exports.handler = async (event, context) => {
         }
 
         const genAI = new GoogleGenerativeAI(API_KEY);
-        const model = genAI.getGenerativeModel({ model: "gemini-pro" }); // Or "gemini-1.5-pro", etc.
+        const model = genAI.getGenerativeModel({ model: "models/gemini-pro" });
 
         const result = await model.generateContent(prompt);
         const response = await result.response;
@@ -38,3 +38,4 @@ exports.handler = async (event, context) => {
         };
     }
 };
+
