@@ -107,7 +107,7 @@
       try {
         await auth.signInWithEmailAndPassword(email, password);
         // If login is successful, redirect to your main page (index.html)
-        window.location.href = 'index.html'; 
+        window.location.href = 'dashboard.html'; 
       } catch (error) {
         console.error("Error logging in:", error);
         errorDisplay.textContent = "Error: " + error.message;
@@ -116,4 +116,5 @@
   </script>
   
 </body>
+
 </html>
