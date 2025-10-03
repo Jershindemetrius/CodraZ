@@ -1,35 +1,27 @@
+# netlify.toml
 [build]
-  command = "echo 'Building CodraZ AI Assistance site...'"
   publish = "."
+  command = "echo 'No build command needed for static HTML site'"
 
 [functions]
-  directory = "netlify/functions"
+  directory = "netlify/functions" # This tells Netlify where to find your serverless functions
 
-# --- Redirects for Multi-Page Flow ---
-# ORDER MATTERS: Specific rules first, then generic.
-
-# Rule 1: Allow direct access to the dashboard.html.
 [[redirects]]
   from = "/dashboard"
   to = "/dashboard.html"
   status = 200
 
-# Rule 2: Allow direct access to the login page.
 [[redirects]]
   from = "/login"
   to = "/login.html"
   status = 200
 
-# Rule 3: Allow direct access to the signup page.
 [[redirects]]
   from = "/signup"
   to = "/signup.html"
   status = 200
 
-# Rule 4: Make firstpage.html the default landing page for ALL other requests.
-# This MUST be the last redirect rule to ensure specific rules above are hit first.
 [[redirects]]
   from = "/*"
-  to = "/firstpage.html"
+  to = "/index.html"
   status = 200
-  force = true
