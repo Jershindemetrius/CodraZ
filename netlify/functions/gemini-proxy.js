@@ -11,9 +11,9 @@ exports.handler = async (event, context) => {
     return { statusCode: 400, body: JSON.stringify({ message: 'Prompt is required' }) };
   }
 
-  const API_KEY = process.env.GEMINI_API_KEY; // <<< This is where it gets the key
+  const API_KEY = process.env.GEMINI_API_KEY;
 
-  if (!API_KEY) { // <<< This check should catch a missing key
+  if (!API_KEY) {
     console.error("GEMINI_API_KEY is not set in environment variables.");
     return {
       statusCode: 500,
@@ -21,8 +21,12 @@ exports.handler = async (event, context) => {
     };
   }
 
-  const genAI = new GoogleGenerativeAI(API_KEY); // <<< Key used here
-  const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+  const genAI = new GoogleGenerativeAI(API_KEY);
+  // --- CHANGE MADE HERE ---
+  const model = genAI.getGenerativeModel({ model: "gemini-1.0-pro" });
+  // If "gemini-1.0-pro" still gives issues, try "text-bison-001" (an older text-only model)
+  // const model = genAI.getGenerativeModel({ model: "text-bison-001" });
+  // --- END CHANGE ---
 
   try {
     const result = await model.generateContent(prompt);
@@ -35,11 +39,11 @@ exports.handler = async (event, context) => {
       body: JSON.stringify({ text }),
     };
   } catch (error) {
-    console.error("Error calling Gemini API:", error); // <<< This log message
+    console.error("Error calling Gemini API:", error);
     return {
       statusCode: 500,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message: 'Failed to get response from Gemini AI', error: error.message }),
     };
   }
-};
+}; // Added the missing closing curly brace for the exports.handler function
