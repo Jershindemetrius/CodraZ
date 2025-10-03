@@ -1,0 +1,50 @@
+[build]
+  # This command is executed during the build process.
+  # For a project with static HTML/CSS/JS and serverless functions,
+  # Netlify will automatically handle `npm install` for your functions
+  # if a package.json is detected, so a simple echo is fine here
+  # if your frontend doesn't need a specific build step.
+  command = "echo 'Building CodraZ AI Assistance site...'"
+
+  # The directory where your compiled site assets are located.
+  # Since your HTML, CSS, JS files are in the root of your repository,
+  # we set this to "."
+  publish = "."
+
+# --- Function Configuration ---
+[functions]
+  # The directory where your serverless functions are located.
+  # This tells Netlify to look inside the 'netlify/functions' folder
+  # for your gemini-proxy.js.
+  directory = "netlify/functions"
+
+# --- Redirects for Multi-Page Flow ---
+# These rules define how Netlify handles incoming requests and routes them to your files.
+
+# Rule 1: Make firstpage.html the default landing page.
+# If a user visits your site's root URL (e.g., your-site.netlify.app/)
+# or any undefined path, they will be served firstpage.html.
+[[redirects]]
+  from = "/*"            # Applies to all paths
+  to = "/firstpage.html" # Routes them to firstpage.html
+  status = 200           # Serves with a 200 OK status (transparent rewrite)
+  force = true           # Ensures this rule is applied even if a file exists at the path
+
+# Rule 2: Allow direct access to the dashboard.html.
+# This ensures that if someone (after logging in) navigates to /dashboard,
+# they get the dashboard content. The previous 'force = true' would block this
+# otherwise. We need to define more specific redirects before the generic one.
+[[redirects]]
+  from = "/dashboard"    # User-friendly URL for the dashboard
+  to = "/dashboard.html" # The actual file
+  status = 200           # Serves with a 200 OK status
+
+# Rule 3: Allow direct access to the login/signup page.
+[[redirects]]
+  from = "/login"        # User-friendly URL for the login page
+  to = "/login-signup.html" # The actual file
+  status = 200           # Serves with a 200 OK status
+
+# IMPORTANT: The order of redirects matters!
+# More specific redirects (like /dashboard, /login) should come BEFORE
+# more generic redirects (like /*). Netlify processes them from top to bottom.
