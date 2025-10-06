@@ -1,41 +1,45 @@
-// This is a conceptual example. You'd use an actual Gemini SDK or fetch.
-const { GoogleGenerativeAI } = require('@google/generative-ai'); // You'd need to npm install @google/generative-ai
+// netlify/functions/gemini-proxy.js
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 exports.handler = async (event, context) => {
-    if (event.httpMethod !== 'POST') {
-        return { statusCode: 405, body: 'Method Not Allowed' };
+  if (event.httpMethod !== 'POST') {
+    return {
+      statusCode: 405,
+      body: JSON.stringify({ message: 'Method Not Allowed' }),
+    };
+  }
+
+  try {
+    const { prompt } = JSON.parse(event.body);
+
+    if (!prompt) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ message: 'Prompt is required' }),
+      };
     }
 
-    try {
-        const { prompt } = JSON.parse(event.body);
+    // Access your API key as an environment variable
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    // *** CHANGE THIS LINE ***
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.0-pro' }); // Changed from 'gemini-pro'
 
-        // Access API key from environment variables
-        const API_KEY = process.env.GEMINI_API_KEY;
-        if (!API_KEY) {
-            return {
-                statusCode: 500,
-                body: JSON.stringify({ message: 'GEMINI_API_KEY not set in environment variables.' }),
-            };
-        }
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
 
-        const genAI = new GoogleGenerativeAI(API_KEY);
-        const model = genAI.getGenerativeModel({ model: "models/gemini-pro" });
-
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        const text = response.text();
-
-        return {
-            statusCode: 200,
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ text: text }),
-        };
-    } catch (error) {
-        console.error('Gemini proxy error:', error);
-        return {
-            statusCode: 500,
-            body: JSON.stringify({ message: 'Failed to get response from Gemini AI.', error: error.message }),
-        };
-    }
+    return {
+      statusCode: 200,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ text }),
+    };
+  } catch (error) {
+    console.error('Gemini API Error:', error);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ message: 'Failed to fetch from Gemini API', error: error.message }),
+    };
+  }
 };
-
