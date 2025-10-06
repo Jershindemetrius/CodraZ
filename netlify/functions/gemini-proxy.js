@@ -22,7 +22,7 @@ exports.handler = async (event, context) => {
 
     // Initialize the Gemini AI model with your API key from environment variables
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: 'gemini-pro' }); // This line is now correct
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' }); // This line is now correct
 
     // Generate content based on the prompt
     const result = await model.generateContent(prompt);
@@ -46,3 +46,4 @@ exports.handler = async (event, context) => {
     };
   }
 };
+
