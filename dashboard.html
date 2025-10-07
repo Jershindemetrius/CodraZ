@@ -1,3 +1,5 @@
+--- START OF FILE dashboard.html ---
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -220,6 +222,28 @@
   </section>
 </main>
   </div>
+
+  <!-- Quiz Modal HTML -->
+  <div id="quizModal" class="modal-overlay">
+    <div class="modal-content">
+      <button class="close-modal-btn" id="closeQuizModal">&times;</button>
+      <div class="quiz-container" id="quizContainer">
+        <h3 id="quizQuestion">Question Text Goes Here?</h3>
+        <div class="quiz-options" id="quizOptions">
+          <!-- Options will be injected here -->
+        </div>
+        <button class="btn quiz-next-btn" id="nextQuizQuestion">Next Question</button>
+      </div>
+      <div class="quiz-results" id="quizResults" style="display: none;">
+        <h3>Quiz Complete!</h3>
+        <p>You scored <span id="quizScore">0</span> out of <span id="quizTotalQuestions">0</span></p>
+        <button class="btn quiz-restart-btn" id="restartQuiz">Play Again</button>
+        <button class="btn outline quiz-close-btn" id="closeResultsModal">Close</button>
+      </div>
+    </div>
+  </div>
+  <!-- End Quiz Modal HTML -->
+
   <script src="script.js"></script>
 </body>
 </html>
