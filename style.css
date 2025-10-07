@@ -1,3 +1,5 @@
+--- START OF FILE style.css ---
+
 :root{
   --bg: #eef2f6;
   --card: #f7f9fb;
@@ -61,11 +63,27 @@ body{
 .search{padding:10px 12px;border-radius:10px;border:1px solid rgba(16,24,40,0.06);width:340px;background:white}
 .icon-btn{background:transparent;border:none;padding:8px;border-radius:8px;cursor:pointer}
 .avatar{background:linear-gradient(90deg,#8fb6ff,#5b9cff);color:white;border:none;padding:8px 12px;border-radius:10px;font-weight:600}
+
+/* Content Sections */
+.content-section {
+  display: none; /* Hidden by default */
+  flex-grow: 1; /* Allow content to grow */
+}
+.content-section.active {
+  display: block; /* Show active section */
+  display: flex; /* Use flex to accommodate the grid */
+  flex-direction: column;
+}
+.content-section.active > .grid {
+  flex-grow: 1;
+}
+
 .grid{
   display:grid;
   grid-template-columns: repeat(12, 1fr);
   grid-auto-rows: minmax(120px, auto);
   gap:18px;
+  flex-grow: 1; /* Allow grid to fill available space */
 }
 
 .card{
@@ -85,6 +103,26 @@ body{
 .chat-card{grid-column: span 7; grid-row: span 2}
 .wellness-card{grid-column: span 5}
 
+/* New full-width cards for dedicated pages */
+.card.full-width-card {
+  grid-column: span 12;
+  height: 100%; /* Make them fill the section */
+  display: flex;
+  flex-direction: column;
+}
+.card.full-width-chat {
+    grid-column: span 12;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+.full-width-chat .chat-area {
+    height: 100%; /* Make chat area fill available space */
+    display: flex;
+    flex-direction: column;
+}
+
+
 .focus-body{display:flex;gap:18px;align-items:center}
 .focus-left{flex:1}
 .focus-right{width:140px;display:flex;flex-direction:column;gap:12px;align-items:center}
@@ -95,6 +133,47 @@ body{
 .progress-labels{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-bottom:6px}
 .progress{height:10px;background:#e6eefb;border-radius:8px;overflow:hidden}
 .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),#7bd0ff);}
+
+/* Task List Styling */
+#taskList {
+    max-height: 200px; /* Or adjust as needed */
+    overflow-y: auto;
+    margin-bottom: 15px;
+    padding-right: 5px; /* For scrollbar */
+}
+.task-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px dashed rgba(12,18,30,0.08);
+    font-size: 14px;
+    color: #333;
+}
+.task-item:last-child {
+    border-bottom: none;
+}
+.task-item.completed .task-name {
+    text-decoration: line-through;
+    color: var(--muted);
+}
+.task-actions {
+    display: flex;
+    gap: 5px;
+}
+.add-task-input {
+    display: flex;
+    gap: 8px;
+    margin-top: 15px;
+}
+.add-task-input input {
+    flex: 1;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(12,18,30,0.06);
+}
+
+
 .calendar{display:flex;flex-direction:column;gap:12px}
 .cal-row{display:flex;gap:8px}
 .cal-day{flex:1;padding:8px;border-radius:8px;background:linear-gradient(180deg,#fff,#f7f9fc);text-align:center;font-weight:600;color:#374151}
@@ -109,9 +188,9 @@ body{
 .tile.full{grid-column:span 2}
 .chat-area{display:flex;flex-direction:column;height:100%}
 .chat-box{flex:1;background:#f8fbff;border-radius:10px;padding:12px;overflow:auto;border:1px solid rgba(12,18,30,0.03)}
-.chat-item{padding:8px 10px;border-radius:10px;margin-bottom:8px;display:inline-block}
-.chat-item.bot{background:#eef6ff;color:#0b2540}
-.chat-item.user{background:#e9f9f0;color:#064e3b;align-self:flex-end}
+.chat-item{padding:8px 10px;border-radius:10px;margin-bottom:8px;display:inline-block;max-width: 80%;} /* Added max-width */
+.chat-item.bot{background:#eef6ff;color:#0b2540; align-self: flex-start;} /* Added align-self */
+.chat-item.user{background:#e9f9f0;color:#064e3b;align-self:flex-end;}
 .chat-input{display:flex;gap:8px;margin-top:10px}
 .chat-input input{flex:1;padding:10px;border-radius:10px;border:1px solid rgba(12,18,30,0.06)}
 .btn{background:var(--accent);color:white;padding:10px 12px;border-radius:10px;border:none;cursor:pointer}
