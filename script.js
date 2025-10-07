@@ -1,3 +1,5 @@
+--- START OF FILE script.js ---
+
 document.addEventListener('DOMContentLoaded', () => {
   const chatBox = document.getElementById('chatBox');
   const chatInput = document.getElementById('chatInput');
@@ -121,4 +123,81 @@ document.addEventListener('DOMContentLoaded', () => {
     pushMessage('Thinking...', 'bot', assistantChatBox);
 
     const botNodes = assistantChatBox.querySelectorAll('.chat-item.bot');
+    const thinkingNode = botNodes[botNodes.length - 1];
 
+    const ans = await askGemini(text, assistantChatBox);
+    if (ans) {
+      thinkingNode.innerText = ans;
+    } else {
+      thinkingNode.remove();
+    }
+  });
+
+  assistantExampleBtn.addEventListener('click', () => {
+    const samples = [
+        "What are the main principles of quantum mechanics?",
+        "How does photosynthesis work?",
+        "Suggest a topic for my next biology project."
+    ];
+    const randomSample = samples[Math.floor(Math.random() * samples.length)];
+    assistantChatInput.value = randomSample;
+    assistantSendBtn.click();
+  });
+
+  assistantClearBtn.addEventListener('click', () => {
+    assistantChatBox.innerHTML = '';
+    pushMessage('Hello! How can I help you today?', 'bot', assistantChatBox);
+  });
+
+  assistantChatInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      assistantSendBtn.click();
+    }
+  });
+
+
+  // --- Dynamic Navigation ---
+  function showSection(navId) {
+    contentSections.forEach(section => {
+      section.style.display = 'none';
+      if (section.id === `${navId}-section`) {
+        section.style.display = 'flex'; // Use flex for sections containing grids
+      }
+    });
+
+    navItems.forEach(item => item.classList.remove('active'));
+    document.querySelector(`.nav-item[data-nav-id="${navId}"]`).classList.add('active');
+  }
+
+  navItems.forEach(item => {
+    item.addEventListener('click', () => {
+      const navId = item.dataset.navId;
+      showSection(navId);
+      // Optional: Update URL hash for direct linking/refresh
+      // history.pushState(null, '', `#${navId}`);
+    });
+  });
+
+  // Initialize with dashboard section active
+  showSection('dashboard');
+  // Optional: Check URL hash on load
+  // if (window.location.hash) {
+  //     showSection(window.location.hash.substring(1));
+  // }
+
+
+  // --- Task List (Focus Today) ---
+  let tasks = JSON.parse(localStorage.getItem('codrazTasks')) || [];
+
+  function saveTasks() {
+    localStorage.setItem('codrazTasks', JSON.stringify(tasks));
+  }
+
+  function renderTasks() {
+    taskList.innerHTML = '';
+    if (tasks.length === 0) {
+        taskList.innerHTML = '<div class="muted small" style="text-align: center; padding: 10px;">No tasks added yet.</div>';
+    }
+
+    tasks.forEach((task, index) => {
