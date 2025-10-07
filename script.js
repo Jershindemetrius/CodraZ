@@ -1,5 +1,3 @@
---- START OF FILE script.js ---
-
 document.addEventListener('DOMContentLoaded', () => {
   const chatBox = document.getElementById('chatBox');
   const chatInput = document.getElementById('chatInput');
@@ -123,3 +121,4 @@ document.addEventListener('DOMContentLoaded', () => {
     pushMessage('Thinking...', 'bot', assistantChatBox);
 
     const botNodes = assistantChatBox.querySelectorAll('.chat-item.bot');
+
