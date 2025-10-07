@@ -1,3 +1,5 @@
+--- START OF FILE dashboard.html ---
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -36,149 +38,224 @@
     </div>
 
     <div class="top-actions">
-      <input class="search" placeholder="Search learning, topics..." />
+      <input class="search" id="mainSearchInput" placeholder="Search learning, topics..." />
       <button class="icon-btn" aria-label="Notifications">🔔</button>
       <button class="avatar" aria-label="User Profile">JD</button>
     </div>
   </header>
 
-  <section class="grid">
-    <article class="card focus-card">
-      <div class="card-header">
-        <h3>Focus Today</h3>
-        <div class="mini">Progress</div>
-      </div>
-      <div class="focus-body">
-        <div class="focus-left">
-          <h2>Trigonometric Functions</h2>
-          <p class="muted">Complete chapter exercises and revise identities</p>
+  <!-- Dashboard Section -->
+  <section class="content-section active" id="dashboard-section">
+    <div class="grid">
+      <article class="card focus-card">
+        <div class="card-header">
+          <h3>Focus Today</h3>
+          <div class="mini">Progress</div>
+        </div>
+        <div class="focus-body">
+          <div class="focus-left">
+            <!-- Tasks will be rendered here -->
+            <div id="taskList">
+              <!-- Example static task, will be replaced by JS -->
+              <div class="task-item">
+                <span class="task-name">Complete chapter exercises</span>
+                <div class="task-actions">
+                  <button class="btn outline small mark-done-btn">Mark Done</button>
+                  <button class="btn outline small delete-task-btn">Delete</button>
+                </div>
+              </div>
+            </div>
 
-          <div class="progress-wrap">
-            <div class="progress-labels">
-              <span>Completed</span><span>60%</span>
+            <div class="progress-wrap">
+              <div class="progress-labels">
+                <span>Completed</span><span id="focusProgressPercentage">0%</span>
+              </div>
+              <div class="progress">
+                <div class="progress-fill" id="focusProgressBar" style="width:0%"></div>
+              </div>
+              <div class="task-row add-task-input">
+                <input type="text" id="newTaskInput" placeholder="Add a new task..." />
+                <button class="btn small" id="addTaskBtn">Add Task</button>
+              </div>
             </div>
-            <div class="progress">
-              <div class="progress-fill" style="width:60%"></div>
+          </div>
+          <div class="focus-right">
+            <div class="stat">
+              <div class="num" id="totalTasksNum">0</div>
+              <div class="lbl">Tasks</div>
             </div>
-            <div class="task-row">
-              <button class="btn small">Start Practice</button>
-              <button class="btn outline small">Mark Done</button>
+            <div class="stat">
+              <div class="num">95</div>
+              <div class="lbl">Focus Score</div>
             </div>
           </div>
         </div>
-        <div class="focus-right">
-          <div class="stat">
-            <div class="num">4</div>
-            <div class="lbl">Tasks</div>
+      </article>
+
+      <!-- Smart Schedule -->
+      <article class="card schedule-card">
+        <div class="card-header">
+          <h3>Smart Schedule</h3>
+          <div class="mini">This week</div>
+        </div>
+        <div class="calendar">
+          <div class="cal-row">
+            <div class="cal-day">Mon</div>
+            <div class="cal-day">Tue</div>
+            <div class="cal-day">Wed</div>
+            <div class="cal-day">Thu</div>
+            <div class="cal-day">Fri</div>
+            <div class="cal-day">Sat</div>
+            <div class="cal-day">Sun</div>
           </div>
-          <div class="stat">
-            <div class="num">95</div>
-            <div class="lbl">Focus Score</div>
+
+          <div class="cal-events">
+            <div class="event math">Math • 09:00 - 10:30</div>
+            <div class="event physics">Physics • 11:00 - 12:30</div>
+            <div class="event break">Break • 12:30 - 13:00</div>
+          </div>
+
+          <div class="cal-legend">
+            <span class="legend-item"><span class="dot math"></span>Math</span>
+            <span class="legend-item"><span class="dot physics"></span>Physics</span>
+            <span class="legend-item"><span class="dot break"></span>Break</span>
           </div>
         </div>
-      </div>
-    </article>
+      </article>
 
-    <!-- Smart Schedule -->
-    <article class="card schedule-card">
-      <div class="card-header">
-        <h3>Smart Schedule</h3>
-        <div class="mini">This week</div>
-      </div>
-      <div class="calendar">
-        <div class="cal-row">
-          <div class="cal-day">Mon</div>
-          <div class="cal-day">Tue</div>
-          <div class="cal-day">Wed</div>
-          <div class="cal-day">Thu</div>
-          <div class="cal-day">Fri</div>
-          <div class="cal-day">Sat</div>
-          <div class="cal-day">Sun</div>
+      <!-- Learning Chatflash -->
+      <article class="card learning-card">
+        <div class="card-header">
+          <h3>Learning Chatflash</h3>
+          <div class="mini">Rapid revision + Breaks</div>
         </div>
 
-        <div class="cal-events">
-          <div class="event math">Math • 09:00 - 10:30</div>
-          <div class="event physics">Physics • 11:00 - 12:30</div>
-          <div class="event break">Break • 12:30 - 13:00</div>
+        <div class="learning-body">
+          <div class="tile">
+            <h4>Upcoming Break</h4>
+            <p class="big" id="upcomingBreakTimer">--:--</p>
+          </div>
+          <div class="tile">
+            <h4>Weekly Focus</h4>
+            <p class="big">85% Avg</p>
+          </div>
+          <div class="tile full">
+            <h4>Session Snapshot</h4>
+            <p class="muted">Mechanics — 30min practice • 10 problems done</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="card chat-card tall">
+        <div class="card-header">
+          <h3>Gemini AI: Explain this concept</h3>
+          <div class="mini">Ask & get concise explanations</div>
         </div>
 
-        <div class="cal-legend">
-          <span class="legend-item"><span class="dot math"></span>Math</span>
-          <span class="legend-item"><span class="dot physics"></span>Physics</span>
-          <span class="legend-item"><span class="dot break"></span>Break</span>
-        </div>
-      </div>
-    </article>
+        <div class="chat-area">
+          <div id="chatBox" class="chat-box">
+            <div class="chat-item bot">Hello! Ask me anything about your subjects.</div>
+          </div>
 
-    <!-- Learning Chatflash -->
-    <article class="card learning-card">
-      <div class="card-header">
-        <h3>Learning Chatflash</h3>
-        <div class="mini">Rapid revision + Breaks</div>
-      </div>
+          <div class="chat-input">
+            <input id="chatInput" placeholder="Explain phototropism in simple words..." />
+            <button id="sendBtn" class="btn">Send</button>
+          </div>
 
-      <div class="learning-body">
-        <div class="tile">
-          <h4>Upcoming Break</h4>
-          <p class="big">10:00 AM • 15m</p>
+          <div class="chat-controls">
+            <button class="btn ghost" id="exampleBtn">Try Example</button>
+            <button class="btn ghost" id="clearBtn">Clear</button>
+          </div>
         </div>
-        <div class="tile">
-          <h4>Weekly Focus</h4>
-          <p class="big">85% Avg</p>
-        </div>
-        <div class="tile full">
-          <h4>Session Snapshot</h4>
-          <p class="muted">Mechanics — 30min practice • 10 problems done</p>
-        </div>
-      </div>
-    </article>
+      </article>
 
-    <!-- Gemini AI Chat (tall) -->
-    <article class="card chat-card tall">
-      <div class="card-header">
-        <h3>Gemini AI: Explain this concept</h3>
-        <div class="mini">Ask & get concise explanations</div>
-      </div>
-
-      <div class="chat-area">
-        <div id="chatBox" class="chat-box">
-          <div class="chat-item bot">Hello! Ask me anything about your subjects.</div>
+      <!-- Wellness Check-in -->
+      <article class="card wellness-card">
+        <div class="card-header">
+          <h3>Wellness Check-in</h3>
+          <div class="mini">How are you feeling?</div>
         </div>
-
-        <div class="chat-input">
-          <input id="chatInput" placeholder="Explain phototropism in simple words..." />
-          <button id="sendBtn" class="btn">Send</button>
+        <div class="wellness-body">
+          <div class="emoji-row">
+            <button class="emoji" data-value="5">😃</button>
+            <button class="emoji" data-value="4">🙂</button>
+            <button class="emoji" data-value="3">😐</button>
+            <button class="emoji" data-value="2">☹️</button>
+            <button class="emoji" data-value="1">😢</button>
+          </div>
+          <div id="wellnessMsg" class="muted small">No entry yet</div>
+          <div id="wellnessTrend" class="muted small"></div>
         </div>
-
-        <div class="chat-controls">
-          <button class="btn ghost" id="exampleBtn">Try Example</button>
-          <button class="btn ghost" id="clearBtn">Clear</button>
-        </div>
-      </div>
-    </article>
-
-    <!-- Wellness Check-in -->
-    <article class="card wellness-card">
-      <div class="card-header">
-        <h3>Wellness Check-in</h3>
-        <div class="mini">How are you feeling?</div>
-      </div>
-      <div class="wellness-body">
-        <div class="emoji-row">
-          <button class="emoji" data-value="5">😃</button>
-          <button class="emoji" data-value="4">🙂</button>
-          <button class="emoji" data-value="3">😐</button>
-          <button class="emoji" data-value="2">☹️</button>
-          <button class="emoji" data-value="1">😢</button>
-        </div>
-        <div id="wellnessMsg" class="muted small">No entry yet</div>
-      </div>    
-    </article>
-
+      </article>
+    </div>
   </section>
+
+  <!-- AI Assistant Section -->
+  <section class="content-section" id="assistant-section" style="display: none;">
+    <article class="card chat-card full-width-chat">
+      <div class="card-header">
+        <h3>Gemini AI Assistant</h3>
+        <div class="mini">Your personal study bot</div>
+      </div>
+      <div class="chat-area">
+        <div id="assistantChatBox" class="chat-box">
+          <div class="chat-item bot">Hello! How can I help you today?</div>
+        </div>
+        <div class="chat-input">
+          <input id="assistantChatInput" placeholder="Ask me anything..." />
+          <button id="assistantSendBtn" class="btn">Send</button>
+        </div>
+        <div class="chat-controls">
+          <button class="btn ghost" id="assistantExampleBtn">Suggest Question</button>
+          <button class="btn ghost" id="assistantClearBtn">Clear Chat</button>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <!-- Schedule Section -->
+  <section class="content-section" id="schedule-section" style="display: none;">
+    <article class="card full-width-card">
+      <div class="card-header">
+        <h3>Detailed Schedule View</h3>
+        <div class="mini">Manage your study blocks</div>
+      </div>
+      <div style="padding: 20px;">
+        <p>This is where your detailed, interactive schedule will go.</p>
+        <p>You could have a full calendar view here, with options to add/edit/drag events.</p>
+      </div>
+    </article>
+  </section>
+
+  <!-- Wellness Section -->
+  <section class="content-section" id="wellness-section" style="display: none;">
+    <article class="card full-width-card">
+      <div class="card-header">
+        <h3>Wellness History & Insights</h3>
+        <div class="mini">Track your well-being over time</div>
+      </div>
+      <div style="padding: 20px;">
+        <p>Here you can display charts and graphs of your wellness check-ins.</p>
+        <p>You might add features like journaling or mindfulness exercises.</p>
+      </div>
+    </article>
+  </section>
+
+  <!-- Settings Section -->
+  <section class="content-section" id="settings-section" style="display: none;">
+    <article class="card full-width-card">
+      <div class="card-header">
+        <h3>Application Settings</h3>
+        <div class="mini">Personalize your experience</div>
+      </div>
+      <div style="padding: 20px;">
+        <p>User profile, notification preferences, theme settings, etc.</p>
+      </div>
+    </article>
+  </section>
+
 </main>
   </div>
-  <!-- IMPORTANT: The script tag must be at the end of the <body> for DOM elements to be ready. -->
   <script src="script.js"></script>
 </body>
 </html>
