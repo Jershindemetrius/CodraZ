@@ -38,7 +38,8 @@
     <div class="top-actions">
       <input class="search" placeholder="Search learning, topics..." />
       <button class="icon-btn" aria-label="Notifications">🔔</button>
-      <button class="avatar" aria-label="User Profile">JD</button>
+      <!-- User profile will be dynamically updated by JS -->
+      <button class="avatar" aria-label="User Profile" id="userAvatar">JD</button>
     </div>
   </header>
 
@@ -50,15 +51,15 @@
       </div>
       <div class="focus-body">
         <div class="focus-left">
-          <h2>Trigonometric Functions</h2>
-          <p class="muted">Complete chapter exercises and revise identities</p>
+          <h2 id="focusSubject">Trigonometric Functions</h2>
+          <p class="muted" id="focusDescription">Complete chapter exercises and revise identities</p>
 
           <div class="progress-wrap">
             <div class="progress-labels">
-              <span>Completed</span><span>60%</span>
+              <span>Completed</span><span id="focusProgressPct">60%</span>
             </div>
             <div class="progress">
-              <div class="progress-fill" style="width:60%"></div>
+              <div class="progress-fill" style="width:60%" id="focusProgressBar"></div>
             </div>
             <div class="task-row">
               <button class="btn small">Start Practice</button>
@@ -68,11 +69,11 @@
         </div>
         <div class="focus-right">
           <div class="stat">
-            <div class="num">4</div>
+            <div class="num" id="focusTasks">4</div>
             <div class="lbl">Tasks</div>
           </div>
           <div class="stat">
-            <div class="num">95</div>
+            <div class="num" id="focusScore">95</div>
             <div class="lbl">Focus Score</div>
           </div>
         </div>
@@ -96,7 +97,8 @@
           <div class="cal-day">Sun</div>
         </div>
 
-        <div class="cal-events">
+        <div class="cal-events" id="scheduleEvents">
+          <!-- Events will be injected here by JS -->
           <div class="event math">Math • 09:00 - 10:30</div>
           <div class="event physics">Physics • 11:00 - 12:30</div>
           <div class="event break">Break • 12:30 - 13:00</div>
@@ -120,15 +122,15 @@
       <div class="learning-body">
         <div class="tile">
           <h4>Upcoming Break</h4>
-          <p class="big">10:00 AM • 15m</p>
+          <p class="big" id="upcomingBreak">10:00 AM • 15m</p>
         </div>
         <div class="tile">
           <h4>Weekly Focus</h4>
-          <p class="big">85% Avg</p>
+          <p class="big" id="weeklyFocus">85% Avg</p>
         </div>
         <div class="tile full">
           <h4>Session Snapshot</h4>
-          <p class="muted">Mechanics — 30min practice • 10 problems done</p>
+          <p class="muted" id="sessionSnapshot">Mechanics — 30min practice • 10 problems done</p>
         </div>
       </div>
     </article>
@@ -156,6 +158,32 @@
       </div>
     </article>
 
+    <!-- Recent Activity -->
+    <article class="card activity-card">
+        <div class="card-header">
+            <h3>Recent Activity</h3>
+            <div class="mini">Last 24 hours</div>
+        </div>
+        <div class="activity-list" id="recentActivityList">
+            <!-- Activities will be injected here by JS -->
+            <div class="activity-item">
+                <span class="activity-icon">📚</span>
+                <span class="activity-text">Completed "Quadratic Equations" quiz.</span>
+                <span class="activity-time">2 hours ago</span>
+            </div>
+            <div class="activity-item">
+                <span class="activity-icon">🤖</span>
+                <span class="activity-text">Asked AI: "What is photosynthesis?"</span>
+                <span class="activity-time">4 hours ago</span>
+            </div>
+            <div class="activity-item">
+                <span class="activity-icon">✍️</span>
+                <span class="activity-text">Revised "Physics Chapter 5".</span>
+                <span class="activity-time">6 hours ago</span>
+            </div>
+        </div>
+    </article>
+
     <!-- Wellness Check-in -->
     <article class="card wellness-card">
       <div class="card-header">
@@ -172,6 +200,21 @@
         </div>
         <div id="wellnessMsg" class="muted small">No entry yet</div>
       </div>    
+    </article>
+
+    <!-- Quick Links -->
+    <article class="card quick-links-card">
+        <div class="card-header">
+            <h3>Quick Links</h3>
+            <div class="mini">Access resources</div>
+        </div>
+        <div class="links-grid" id="quickLinksGrid">
+            <!-- Links will be injected here by JS -->
+            <a href="https://ncert.nic.in/textbook.php?iesc1=0-15" class="quick-link-item"><span class="link-icon">📖</span>Textbooks</a>
+            <a href="#" class="quick-link-item"><span class="link-icon">🧪</span>Labs</a>
+            <a href="#" class="quick-link-item"><span class="link-icon">📝</span>Quizzes</a>
+            <a href="#" class="quick-link-item"><span class="link-icon">❓</span>FAQ</a>
+        </div>
     </article>
 
   </section>
