@@ -102,7 +102,6 @@
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore(); // For storing extra user data
-
     document.getElementById('signupForm').addEventListener('submit', async (e) => {
       e.preventDefault(); // Prevent default form submission
 
@@ -123,14 +122,6 @@
       try {
         const userCredential = await auth.createUserWithEmailAndPassword(email, password);
         const user = userCredential.user;
-
-        // Store additional user data in Firestore (optional but good practice)
-        await db.collection('users').doc(user.uid).set({
-          name: name,
-          email: email,
-          age: age,
-          dob: dob
-        });
 
         alert("Sign up successful! You can now log in.");
         window.location.href = 'login.html'; // Redirect to login page
