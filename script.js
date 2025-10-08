@@ -1,12 +1,6 @@
-/* script.js
-   Offline-capable student scheduler + quiz + AI-powered assistant
-   Saves data in localStorage under key 'codraz_state_v1'
-*/
-
 (() => {
-  // ---------- Utilities ----------
   const STORAGE_KEY = 'codraz_state_v1';
-  let notifiedTaskIds = []; // For notification tracking
+  let notifiedTaskIds = [];
 
   function uid(prefix = 'id') {
     return prefix + '_' + Math.random().toString(36).slice(2, 9);
@@ -15,7 +9,7 @@
   function qsa(sel, root = document) { return Array.from(root.querySelectorAll(sel)); }
 
   // ---------- DOM elements ----------
-  const mainTitleEl = qs('.title-block h1');
+  const userGreetingEl = qs('#userGreeting');
   const addTaskBtn = qs('#addTaskBtn');
   const markAllDoneBtn = qs('#markAllDoneBtn');
   const focusSubject = qs('#focusSubject');
@@ -61,6 +55,7 @@
   const toggleDark = qs('#toggleDark');
   const dashboardView = qs('#dashboardView');
   const assistantView = qs('#assistantView');
+  const wellnessView = qs('#wellnessView'); // New selector for wellness view
 
   // ---------- State ----------
   let state = {
@@ -107,7 +102,7 @@
     if (state.chat.length === 0) {
         pushBotMessage('Hello! I am your study buddy. Ask me anything!');
     }
-    if (state.settings.dark) document.body.classList.add('dark');
+    if (state.settings.dark) applyDark(true);
   }
 
   // ---------- User & Greeting Functions ----------
@@ -132,10 +127,10 @@
   }
   
   function renderGreeting() {
-    if (!mainTitleEl || !state.user || !state.user.name) return;
+    if (!userGreetingEl || !state.user || !state.user.name) return;
     const hour = new Date().getHours();
     let greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
-    mainTitleEl.innerHTML = `${greeting}, <strong>${escapeHtml(state.user.name)}</strong>!`;
+    userGreetingEl.innerHTML = `<span>${greeting}, <strong>${escapeHtml(state.user.name)}</strong>!</span>`;
   }
   
   // ---------- Notification Reminder Functions ----------
@@ -387,14 +382,17 @@
     editingId = null;
   }
 
+  // Updated showPanel function
   function showPanel(panelName) {
       dashboardView.classList.add('hidden');
       assistantView.classList.add('hidden');
       scheduleEditor.classList.add('hidden');
+      wellnessView.classList.add('hidden'); // Hide wellness view by default
 
       if (panelName === 'dashboard') dashboardView.classList.remove('hidden');
       if (panelName === 'assistant') assistantView.classList.remove('hidden');
       if (panelName === 'schedule') scheduleEditor.classList.remove('hidden');
+      if (panelName === 'wellness') wellnessView.classList.remove('hidden'); // Show wellness view when clicked
 
       navItems.forEach(n => n.classList.remove('active'));
       qs(`.nav-item[data-nav="${panelName}"]`)?.classList.add('active');
@@ -620,6 +618,7 @@
     searchInput?.addEventListener('input', () => renderTasks());
     toggleDark?.addEventListener('click', () => {
       const isDark = document.body.classList.toggle('dark');
+      applyDark(isDark);
       state.settings.dark = isDark;
       saveState();
     });
@@ -666,6 +665,10 @@
     state.chat.push({ id: uid('m'), from: 'bot', text, ts: new Date().toISOString() });
     saveState();
     renderChat();
+  }
+
+  function applyDark(isDark) {
+    document.body.classList.toggle('dark', isDark);
   }
 
   // ---------- Safety / helpers ----------
