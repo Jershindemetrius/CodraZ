@@ -97,7 +97,7 @@
     populateDaySelect();
     renderAll();
     attachListeners();
-    pushBotMessage('Hello! I am your study buddy. Ask me anything (simulated replies).');
+    pushBotMessage('Hello! I am your study buddy. Ask me anything!'); // Removed simulated AI note
     if (state.settings.dark) applyDark(true);
   }
 
@@ -108,7 +108,7 @@
     const [hh, mm] = t.split(':').map(n => Number(n));
     const ampm = hh >= 12 ? 'PM' : 'AM';
     const hr12 = ((hh + 11) % 12) + 1;
-    return ${hr12}:${String(mm).padStart(2,'0')} ${ampm};
+    return `${hr12}:${String(mm).padStart(2,'0')} ${ampm}`;
   }
   function nowText() {
     return new Date().toLocaleString();
@@ -236,7 +236,7 @@
         t.done = !t.done;
         saveState();
         renderAll();
-        addActivity(${t.title} marked ${t.done ? 'done' : 'not done'});
+        addActivity(`${t.title} marked ${t.done ? 'done' : 'not done'}`);
       });
 
       const edit = document.createElement('button');
@@ -252,7 +252,7 @@
         state.tasks = state.tasks.filter(x => x.id !== t.id);
         saveState();
         renderAll();
-        addActivity(Deleted task "${t.title}");
+        addActivity(`Deleted task "${t.title}"`);
       });
 
       actions.appendChild(play);
@@ -277,7 +277,7 @@
     sorted.slice(0,12).forEach(t => {
       const el = document.createElement('div');
       el.className = 'event study';
-      el.innerText = ${t.title} • ${formatTime(t.time)};
+      el.innerText = `${t.title} • ${formatTime(t.time)}`;
       scheduleEvents.appendChild(el);
     });
   }
@@ -354,19 +354,19 @@
       const t = state.tasks.find(x => x.id === editingId);
       if (t) {
         Object.assign(t, payload);
-        addActivity(Edited task "${t.title}");
+        addActivity(`Edited task "${t.title}"`);
       }
     } else {
       const newTask = Object.assign({ id: uid('task'), done:false, scoreHistory:[] }, payload);
       state.tasks.push(newTask);
-      addActivity(Added task "${newTask.title}");
+      addActivity(`Added task "${newTask.title}"`);
     }
     saveState();
     renderAll();
     hidePanelEditor();
   });
 
-  // ---------- Chat (simulated) ----------
+  // ---------- Chat (AI-powered) ----------
   function pushUserMessage(text) {
     const msg = { id: uid('m'), from:'user', text, ts: new Date().toISOString() };
     state.chat.push(msg);
@@ -380,24 +380,31 @@
     if (state.chat.length > 200) state.chat.shift();
     saveState();
     renderChat();
-    addActivity(AI answered: ${text.substring(0,80)});
+    addActivity(`AI answered: ${text.substring(0,80)}`);
   }
 
-  // Simple simulated AI: pattern-matching & helpful templates
-  function simulatedAI(prompt) {
-    const p = prompt.toLowerCase();
-    // exact matches or keywords
-    if (p.includes('phototropism')) return 'Phototropism is how plants bend toward light. Cells on the darker side grow faster so the plant curves to the light source.';
-    if (p.includes('photosynthesis')) return 'Photosynthesis is how plants make food: they use sunlight, water, and CO₂ to produce sugar and oxygen.';
-    if (p.includes('newton') && p.includes('2')) return 'Newton\'s 2nd law: Force = mass × acceleration. Push harder (more force) and acceleration increases.';
-    if (p.includes('explain') && p.split(' ').length < 5) return 'Please give a little more detail or a topic (e.g., "Explain inertia in one paragraph").';
-    if (p.includes('quiz') || p.includes('practice')) return 'To practice, open the schedule and press "Start Practice" on any task — a 50-question quiz will begin.';
-    // fallback: give short, friendly answer
-    const short = Here is a short explanation of "${prompt.split('\n')[0].slice(0,70)}":\n\n +
-      '• Key idea: summarize main concept.\n' +
-      '• Example: a simple illustrative example.\n' +
-      '\nIf you want, ask for a short quiz or examples.';
-    return short;
+  // Function to call the Netlify serverless function for AI
+  async function callAIGenerate(prompt) {
+    try {
+      const response = await fetch('/.netlify/functions/gemini-proxy', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ prompt }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to get response from AI');
+      }
+
+      const data = await response.json();
+      return data.text;
+    } catch (error) {
+      console.error('Error calling AI proxy:', error);
+      return 'I am currently unable to provide an answer. Please try again later.';
+    }
   }
 
   sendBtn?.addEventListener('click', async () => {
@@ -407,17 +414,26 @@
     chatInput.value = '';
     // Show thinking...
     pushBotMessage('Thinking...');
-    // replace last bot 'Thinking...' after simulated response
-    setTimeout(() => {
-      // remove the last bot 'Thinking...' and replace
+
+    try {
+      const ans = await callAIGenerate(text);
+      // Remove the last bot 'Thinking...' and replace
       const lastBotIndex = state.chat.map(c=>c.from).lastIndexOf('bot');
       if (lastBotIndex >= 0 && state.chat[lastBotIndex].text === 'Thinking...') {
         state.chat.splice(lastBotIndex,1);
       }
-      const ans = simulatedAI(text);
       pushBotMessage(ans);
-      saveState();
-    }, 600 + Math.random()*800);
+    } catch (error) {
+      console.error('Failed to get AI response:', error);
+      // Remove the last bot 'Thinking...' and replace with an error message
+      const lastBotIndex = state.chat.map(c=>c.from).lastIndexOf('bot');
+      if (lastBotIndex >= 0 && state.chat[lastBotIndex].text === 'Thinking...') {
+        state.chat.splice(lastBotIndex,1);
+      }
+      pushBotMessage('Apologies, there was an error getting a response. Please try again or rephrase.');
+    } finally {
+      saveState(); // Save state after AI interaction
+    }
   });
 
   exampleBtn?.addEventListener('click', () => {
@@ -439,7 +455,7 @@
       saveState();
       wellnessMsg.innerText = v >= 4 ? 'Great — keep it up!' : v === 3 ? 'Take short breaks.' : 'Sorry to hear that. Try a 5-min walk.';
       wellnessMsg.style.color = v <= 2 ? 'var(--danger)' : 'var(--success)';
-      addActivity(Wellness check: ${v});
+      addActivity(`Wellness check: ${v}`);
       if (v === 1) {
         // gently suggest a short practice quiz
         openQuizModal();
@@ -464,22 +480,22 @@
   function generateMockQuestions(topic, count=QUIZ_LENGTH) {
     const qs = [];
     const base = [
-      {q:Basic: What is 2+2?, choices:[ '3','4','5','2' ], a:1},
-      {q:Which planet is nearest to the Sun?, choices:['Venus','Earth','Mercury','Mars'], a:2},
-      {q:Which gas do plants produce?, choices:['CO₂','O₂','N₂','H₂'], a:1},
-      {q:Who wrote Hamlet?, choices:['Shakespeare','Dickens','Austen','Orwell'], a:0},
-      {q:What is H₂O commonly called?, choices:['Salt','Water','Oxygen','Hydrogen'], a:1},
-      {q:Which angle is 90°?, choices:['Acute','Right','Obtuse','Straight'], a:1},
-      {q:What is the chemical symbol for sodium?, choices:['Na','S','K','N'], a:0},
-      {q:What is 5×6?, choices:['30','11','56','25'], a:0},
-      {q:Which organ pumps blood?, choices:['Lungs','Liver','Heart','Kidney'], a:2},
-      {q:What do bees collect?, choices:['Milk','Pollen','Water','Sand'], a:1},
+      {q:'Basic: What is 2+2?', choices:[ '3','4','5','2' ], a:1},
+      {q:'Which planet is nearest to the Sun?', choices:['Venus','Earth','Mercury','Mars'], a:2},
+      {q:'Which gas do plants produce?', choices:['CO₂','O₂','N₂','H₂'], a:1},
+      {q:'Who wrote Hamlet?', choices:['Shakespeare','Dickens','Austen','Orwell'], a:0},
+      {q:'What is H₂O commonly called?', choices:['Salt','Water','Oxygen','Hydrogen'], a:1},
+      {q:'Which angle is 90°?', choices:['Acute','Right','Obtuse','Straight'], a:1},
+      {q:'What is the chemical symbol for sodium?', choices:['Na','S','K','N'], a:0},
+      {q:'What is 5×6?', choices:['30','11','56','25'], a:0},
+      {q:'Which organ pumps blood?', choices:['Lungs','Liver','Heart','Kidney'], a:2},
+      {q:'What do bees collect?', choices:['Milk','Pollen','Water','Sand'], a:1},
     ];
     for (let i=0;i<count;i++){
       const sample = base[i % base.length];
       qs.push({
         id: uid('q'),
-        question: ${sample.q} (${topic}),
+        question: `${sample.q} (${topic})`,
         choices: sample.choices.slice(),
         answerIndex: sample.a
       });
@@ -512,7 +528,7 @@
   function renderQuizQuestion() {
     const q = quizState.questions[quizState.index];
     if (!q) return;
-    quizQuestionEl.innerText = ${quizState.index + 1}. ${q.question};
+    quizQuestionEl.innerText = `${quizState.index + 1}. ${q.question}`;
     quizOptionsEl.innerHTML = '';
     q.choices.forEach((choice, idx) => {
       const btn = document.createElement('button');
@@ -536,7 +552,7 @@
       quizOptionsEl.appendChild(btn);
     });
     nextQuizQuestionBtn.style.display = 'none';
-    quizProgressText.innerText = ${quizState.index + 1} / ${quizState.questions.length};
+    quizProgressText.innerText = `${quizState.index + 1} / ${quizState.questions.length}`;
   }
 
   nextQuizQuestionBtn?.addEventListener('click', () => {
@@ -571,10 +587,10 @@
         t.scoreHistory = t.scoreHistory || [];
         t.scoreHistory.push({ date: new Date().toISOString(), correct, total: quizState.questions.length, topic: quizState.topic });
         saveState();
-        addActivity(Completed quiz for "${t.title}" — ${correct}/${quizState.questions.length});
+        addActivity(`Completed quiz for "${t.title}" — ${correct}/${quizState.questions.length}`);
       }
     } else {
-      addActivity(Completed a quiz — ${correct}/${quizState.questions.length});
+      addActivity(`Completed a quiz — ${correct}/${quizState.questions.length}`);
     }
     renderAll();
   }
@@ -656,6 +672,6 @@
   // expose some functions for debugging in console (optional)
   window.CodraZ = {
     state, saveState, loadState, openQuizModal, startPracticeForTask
-  };
+  };
 
 })();
