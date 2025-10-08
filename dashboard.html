@@ -1,248 +1,522 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>CodraZ AI Assistance— Dashboard</title>
-  <link rel="preconnect" href="https://fonts.gstatic.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css" />
+  <title>CodraZ — Study & Wellbeing Assistant</title>
+  <meta name="description" content="CodraZ — AI-powered study + wellbeing combo. Planner, mood tracker, AI mentor mock and community preview."/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#f7fafc; --card:#ffffff; --muted:#6b7280; --accent:#2563eb; --success:#10b981;
+      --glass: rgba(255,255,255,0.6);
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; background:linear-gradient(180deg,#f8fafc 0%, #eef2ff 100%);
+      color:#0f172a; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+      line-height:1.45;
+    }
+    .container{max-width:1100px;margin:0 auto;padding:28px;}
+    header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px}
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{
+      width:52px;height:52px;border-radius:10px;background:linear-gradient(135deg,#3b82f6,#7c3aed);
+      display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:18px;box-shadow:0 6px 20px rgba(37,99,235,0.15)
+    }
+    nav a{color:var(--muted);text-decoration:none;margin:0 8px;font-weight:600}
+    .cta{background:var(--accent);color:#fff;padding:10px 14px;border-radius:8px;text-decoration:none;font-weight:600}
+    main{display:grid;grid-template-columns:1fr;gap:20px}
+    .hero{background:var(--card);padding:28px;border-radius:14px;box-shadow:0 6px 20px rgba(15,23,42,0.06);display:flex;gap:24px;align-items:center}
+    .hero-left{flex:1}
+    .tag{display:inline-block;padding:6px 10px;background:#eef2ff;color:#1e3a8a;border-radius:999px;font-weight:600;font-size:13px}
+    h1{margin:10px 0 8px;font-size:28px}
+    p.lead{margin:0;color:var(--muted)}
+    .hero-actions{margin-top:16px;display:flex;gap:12px;flex-wrap:wrap}
+    .btn{padding:10px 14px;border-radius:10px;border:1px solid transparent;font-weight:600}
+    .btn-ghost{background:transparent;border:1px solid rgba(15,23,42,0.06)}
+    .grid{display:grid;gap:18px}
+    @media(min-width:900px){ .two-col{grid-template-columns:1fr 420px} .grid-3{grid-template-columns:repeat(3,1fr)} }
+    .card{background:var(--card);padding:18px;border-radius:12px;box-shadow:0 6px 18px rgba(15,23,42,0.04)}
+    .small{font-size:13px;color:var(--muted)}
+    .section-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+    .list{margin:0;padding:0;list-style:none}
+    .task{display:flex;align-items:center;justify-content:space-between;padding:10px;border-radius:10px;border:1px solid rgba(15,23,42,0.04);margin-bottom:8px}
+    input[type="text"], input[type="time"], select, textarea{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(15,23,42,0.06);font-size:14px}
+    .tiny{font-size:13px;color:var(--muted)}
+    .emoji-btn{cursor:pointer;padding:8px;border-radius:8px;border:1px solid rgba(15,23,42,0.04);display:inline-flex;align-items:center;justify-content:center;font-size:20px}
+    .active-emoji{box-shadow:0 6px 18px rgba(16,185,129,0.12);border-color:rgba(16,185,129,0.2)}
+    .chat{display:flex;flex-direction:column;gap:10px;max-height:360px;overflow:auto;padding:8px}
+    .msg{max-width:78%;padding:10px;border-radius:10px}
+    .msg.user{align-self:flex-end;background:#e6f0ff;border:1px solid rgba(37,99,235,0.12)}
+    .msg.bot{align-self:flex-start;background:#f3f4f6;border:1px solid rgba(15,23,42,0.04)}
+    footer{margin-top:14px;padding:18px;border-radius:10px;text-align:center;color:var(--muted)}
+    .pill{display:inline-block;padding:6px 10px;background:#fafafa;border-radius:999px;border:1px solid rgba(15,23,42,0.04);font-weight:600}
+    .muted{color:var(--muted)}
+    .small-muted{font-size:13px;color:var(--muted)}
+    .action-row{display:flex;gap:8px;align-items:center}
+    .community-post{border:1px solid rgba(15,23,42,0.04);padding:12px;border-radius:10px}
+    .topline{display:flex;gap:10px;align-items:center}
+    .avatar{width:40px;height:40px;border-radius:10px;background:#eef2ff;display:inline-flex;align-items:center;justify-content:center;color:#1e3a8a;font-weight:700}
+    .warn{color:#b45309}
+  </style>
 </head>
 <body>
-  <div class="app">
-    <aside class="sidebar">
+  <div class="container">
+    <header>
       <div class="brand">
-        <div class="brand-logo">🎓</div>
-        <div class="brand-title">CodraZ AI Assistance</div>
+        <div class="logo">CZ</div>
+        <div>
+          <div style="font-weight:700">CodraZ</div>
+          <div style="font-size:13px;color:var(--muted)">Study & wellbeing companion</div>
+        </div>
       </div>
-        <nav class="nav">
-    <button class="nav-item active" data-nav-id="dashboard"><span class="icon">🏠</span><span class="label">Dashboard</span></button>
-    <button class="nav-item" data-nav-id="assistant"><span class="icon">🤖</span><span class="label">AI Assistant</span></button>
-    <button class="nav-item" data-nav-id="schedule"><span class="icon">🗓️</span><span class="label">Schedule</span></button>
-    <button class="nav-item" data-nav-id="wellness"><span class="icon">💚</span><span class="label">Wellness</span></button>
-    <button class="nav-item" data-nav-id="settings"><span class="icon">⚙️</span><span class="label">Settings</span></button>
-  </nav>
+      <nav>
+        <a href="#home">Home</a>
+        <a href="#planner">Planner</a>
+        <a href="#mood">Mood</a>
+        <a href="#mentor">AI Mentor</a>
+        <a href="#community">Community</a>
+        <a class="cta" href="#contact">Get in touch</a>
+      </nav>
+    </header>
 
-  <div class="sidebar-footer">
-    <p>&copy; 2025 CodraZ AI. All rights reserved.</p>
-    <p>Version 1.0</p>
-  </div>
-</aside>
-<main class="main">
-  <header class="topbar">
-    <div class="title-block">
-      <h1>CodraZ: Your Smart Study Companion</h1>
-      <p class="subtitle">Phase 3 • Visual Design & Mockups — Dashboard & Core Features</p>
-    </div>
+    <main>
+      <!-- HERO -->
+      <section id="home" class="hero card">
+        <div class="hero-left">
+          <div class="tag">Wellbeing + Learning</div>
+          <h1>Learn better. Stay balanced.</h1>
+          <p class="lead">CodraZ pairs study planning with quick wellbeing checks. Build momentum while protecting your focus and mental energy.</p>
+          <div class="hero-actions">
+            <a class="btn" href="#planner" style="background:var(--accent);color:#fff;border-radius:10px">Open Planner</a>
+            <a class="btn btn-ghost" href="#mentor">Try AI Mentor</a>
+            <button onclick="window.print()" class="btn btn-ghost">Save as PDF</button>
+          </div>
 
-    <div class="top-actions">
-      <input class="search" placeholder="Search learning, topics..." />
-      <button class="icon-btn" aria-label="Notifications">🔔</button>
-      <!-- User profile will be dynamically updated by JS -->
-      <button class="avatar" aria-label="User Profile" id="userAvatar">JD</button>
-    </div>
-  </header>
+          <div style="margin-top:16px" class="small-muted">
+            Tip: Add a session in the planner, then click Start to run the focus timer. Mood checks save automatically.
+          </div>
+        </div>
 
-  <section class="grid">
-    <article class="card focus-card">
-      <div class="card-header">
-        <h3>Focus Today</h3>
-        <div class="mini">Progress</div>
-      </div>
-      <div class="focus-body">
-        <div class="focus-left">
-          <h2 id="focusSubject">Trigonometric Functions</h2>
-          <p class="muted" id="focusDescription">Complete chapter exercises and revise identities</p>
-
-          <div class="progress-wrap">
-            <div class="progress-labels">
-              <span>Completed</span><span id="focusProgressPct">60%</span>
+        <div style="width:340px">
+          <div class="card" style="margin-bottom:12px">
+            <div class="small muted">Today's quick view</div>
+            <div style="margin-top:10px">
+              <div style="display:flex;gap:10px;align-items:center">
+                <div class="pill" id="today-sessions">Sessions: 0</div>
+                <div class="pill" id="today-mood">Latest mood: —</div>
+              </div>
             </div>
-            <div class="progress">
-              <div class="progress-fill" style="width:60%" id="focusProgressBar"></div>
+          </div>
+
+          <div class="card">
+            <div class="small-muted">Quick start</div>
+            <ol style="margin:10px 0 0;padding-left:18px" class="small-muted">
+              <li>Plan one 25–45 minute session.</li>
+              <li>Start timer, work without phone, take a 5–10 minute break.</li>
+              <li>Record mood after session. Repeat.</li>
+            </ol>
+          </div>
+        </div>
+      </section>
+
+      <!-- TWO COLUMN: Planner + Mood -->
+      <section class="two-col grid" style="margin-top:14px">
+        <!-- PLANNER -->
+        <div class="card">
+          <div class="section-title">
+            <div>
+              <div style="font-weight:700">Study Planner</div>
+              <div class="small-muted">Schedule sessions, start a timer, and get break prompts.</div>
             </div>
-            <div class="task-row">
-              <button class="btn small">Start Practice</button>
-              <button class="btn outline small">Mark Done</button>
+            <div class="tiny">Local-only prototype</div>
+          </div>
+
+          <form id="add-session-form" onsubmit="return false" style="margin-bottom:12px">
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <input id="session-title" placeholder="Session title (e.g. Physics - Chapter 3)" required />
+              <input id="session-time" type="time" />
+              <select id="session-duration" style="width:160px">
+                <option value="25">25 min</option>
+                <option value="30">30 min</option>
+                <option value="45">45 min</option>
+                <option value="60">60 min</option>
+              </select>
+              <button class="btn" onclick="addSession()" style="background:var(--accent);color:#fff">Add</button>
+            </div>
+            <div style="margin-top:8px" class="tiny muted">Sessions are saved in your browser.</div>
+          </form>
+
+          <div id="sessions-list" style="margin-top:16px"></div>
+
+          <div style="margin-top:14px" class="small-muted">Timer controls: click Start on a session to run the timer. Break prompts appear automatically.</div>
+        </div>
+
+        <!-- MOOD TRACKER -->
+        <div class="card">
+          <div class="section-title">
+            <div>
+              <div style="font-weight:700">Mood Tracker</div>
+              <div class="small-muted">Fast check-ins. Track mood trends over time.</div>
+            </div>
+            <div class="tiny">Private to your device</div>
+          </div>
+
+          <div style="margin-bottom:12px">
+            <div class="small-muted">How are you right now?</div>
+            <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap" id="emoji-row">
+              <button class="emoji-btn" data-val="5" title="Great">😄</button>
+              <button class="emoji-btn" data-val="4" title="Good">🙂</button>
+              <button class="emoji-btn" data-val="3" title="Okay">😐</button>
+              <button class="emoji-btn" data-val="2" title="Low">😟</button>
+              <button class="emoji-btn" data-val="1" title="Bad">😢</button>
+            </div>
+            <div style="margin-top:10px" class="tiny muted">Optional: add a short note</div>
+            <textarea id="mood-note" placeholder="Note (optional)" rows="2" style="margin-top:8px"></textarea>
+            <div style="margin-top:8px;display:flex;gap:8px">
+              <button class="btn" onclick="saveMood()" style="background:var(--accent);color:#fff">Save Mood</button>
+              <button class="btn btn-ghost" onclick="clearMood()">Clear</button>
+            </div>
+          </div>
+
+          <div style="margin-top:8px">
+            <div class="small-muted">Mood history</div>
+            <div id="mood-history" style="margin-top:10px;max-height:220px;overflow:auto"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- AI Mentor + Community -->
+      <section class="grid grid-3" style="margin-top:14px">
+        <!-- AI Mentor -->
+        <div class="card" id="mentor">
+          <div class="section-title">
+            <div>
+              <div style="font-weight:700">AI Mentor (mock)</div>
+              <div class="small-muted">Prototype chat. You can wire real API keys later.</div>
+            </div>
+            <div class="tiny">Demo</div>
+          </div>
+
+          <div class="chat" id="chat-box">
+            <div class="msg bot">Hi—I’m CodraZ. Tell me what you want to study or how you feel, and I’ll suggest a short plan.</div>
+          </div>
+
+          <div style="display:flex;gap:8px;margin-top:10px">
+            <input id="chat-input" placeholder="Ask: e.g., 'Plan a 30 min session for calculus' " />
+            <button class="btn" onclick="sendChat()" style="background:var(--accent);color:#fff">Send</button>
+          </div>
+
+          <div style="margin-top:10px" class="tiny muted">
+            Note: This chat is a client-side mock. To use a real AI backend, add your OpenAI key on your server and proxy requests.
+          </div>
+        </div>
+
+        <!-- Community preview -->
+        <div class="card" id="community">
+          <div class="section-title">
+            <div>
+              <div style="font-weight:700">Community preview</div>
+              <div class="small-muted">Motivation posts and micro reflections</div>
+            </div>
+            <div class="tiny">Demo feed</div>
+          </div>
+
+          <div class="community-post">
+            <div class="topline">
+              <div class="avatar">AP</div>
+              <div>
+                <div style="font-weight:700">Anita P.</div>
+                <div style="font-size:12px;color:var(--muted)">Finished 2 sessions today. Feeling calm.</div>
+              </div>
+            </div>
+            <div style="margin-top:8px" class="small-muted">Short reflection: Took three focused 25-minute sessions. Phone off. Small wins.</div>
+          </div>
+
+          <div class="community-post" style="margin-top:10px">
+            <div class="topline">
+              <div class="avatar">RM</div>
+              <div>
+                <div style="font-weight:700">Rahul M.</div>
+                <div style="font-size:12px;color:var(--muted)">Shared a study playlist</div>
+              </div>
+            </div>
+            <div style="margin-top:8px" class="small-muted">Playlist: Lo-fi, 45-min loop. Kept focus steady.</div>
+          </div>
+
+          <div class="small-muted" style="margin-top:10px">Want a real chat room or posts? We can add Firebase or Supabase for live interaction.</div>
+        </div>
+
+        <!-- Roadmap / About -->
+        <div class="card" id="about">
+          <div class="section-title">
+            <div>
+              <div style="font-weight:700">About & Roadmap</div>
+              <div class="small-muted">Where CodraZ goes next</div>
+            </div>
+            <div class="tiny">Roadmap</div>
+          </div>
+
+          <div>
+            <ul style="padding-left:18px" class="small-muted">
+              <li><strong>Phase 1:</strong> Planner, Mood, AI Mentor mock (this prototype).</li>
+              <li><strong>Phase 2:</strong> Mobile app; real-time sync across devices.</li>
+              <li><strong>Phase 3:</strong> Certified wellness content and partnerships with colleges.</li>
+              <li><strong>Phase 4:</strong> Analytics product for institutions (privacy-first).</li>
+            </ul>
+
+            <div style="margin-top:12px" class="small-muted">Business hints: Freemium core; paid analytics and institution plans later.</div>
+
+            <div style="margin-top:12px">
+              <div class="small-muted">Contact</div>
+              <div style="margin-top:6px">
+                <a href="#contact" class="pill">Contact team</a>
+              </div>
             </div>
           </div>
         </div>
-        <div class="focus-right">
-          <div class="stat">
-            <div class="num" id="focusTasks">4</div>
-            <div class="lbl">Tasks</div>
+      </section>
+
+      <!-- Contact / Footer -->
+      <section class="card" id="contact" style="margin-top:14px">
+        <div class="section-title">
+          <div>
+            <div style="font-weight:700">Get in touch</div>
+            <div class="small-muted">For hackathon judges: demo walkthrough, team contacts, and deploy notes.</div>
           </div>
-          <div class="stat">
-            <div class="num" id="focusScore">95</div>
-            <div class="lbl">Focus Score</div>
+          <div class="tiny">CodraZ — Team</div>
+        </div>
+
+        <div style="display:flex;gap:18px;flex-wrap:wrap">
+          <div style="flex:1;min-width:260px">
+            <div class="small-muted">Team</div>
+            <div style="margin-top:8px">
+              <div style="font-weight:700">Team CodraZ</div>
+              <div class="small-muted">Developer • Designer • UX • AI</div>
+            </div>
+            <div style="margin-top:12px" class="small-muted">Presentation: Keep demo at codraz.netlify.app open and show Planner -> Start session -> Record mood -> Quick chat with Mentor.</div>
+          </div>
+
+          <div style="flex:1;min-width:260px">
+            <div class="small-muted">Deploy notes</div>
+            <ol style="margin-top:8px;padding-left:18px" class="small-muted">
+              <li>Save this file as <code>index.html</code>.</li>
+              <li>Publish to Netlify (drag & drop) or push to GitHub and enable Pages.</li>
+              <li>Optional: Add server for AI keys or Firebase for live community / sync.</li>
+            </ol>
+            <div style="margin-top:8px" class="small-muted">If you want, I can prepare a ready Netlify deploy zip with a simple README.</div>
           </div>
         </div>
-      </div>
-    </article>
+      </section>
 
-    <!-- Smart Schedule -->
-    <article class="card schedule-card">
-      <div class="card-header">
-        <h3>Smart Schedule</h3>
-        <div class="mini">This week</div>
-      </div>
-      <div class="calendar">
-        <div class="cal-row">
-          <div class="cal-day">Mon</div>
-          <div class="cal-day">Tue</div>
-          <div class="cal-day">Wed</div>
-          <div class="cal-day">Thu</div>
-          <div class="cal-day">Fri</div>
-          <div class="cal-day">Sat</div>
-          <div class="cal-day">Sun</div>
-        </div>
-
-        <div class="cal-events" id="scheduleEvents">
-          <!-- Events will be injected here by JS -->
-          <div class="event math">Math • 09:00 - 10:30</div>
-          <div class="event physics">Physics • 11:00 - 12:30</div>
-          <div class="event break">Break • 12:30 - 13:00</div>
-        </div>
-
-        <div class="cal-legend">
-          <span class="legend-item"><span class="dot math"></span>Math</span>
-          <span class="legend-item"><span class="dot physics"></span>Physics</span>
-          <span class="legend-item"><span class="dot break"></span>Break</span>
-        </div>
-      </div>
-    </article>
-
-    <!-- Learning Chatflash -->
-    <article class="card learning-card">
-      <div class="card-header">
-        <h3>Learning Chatflash</h3>
-        <div class="mini">Rapid revision + Breaks</div>
-      </div>
-
-      <div class="learning-body">
-        <div class="tile">
-          <h4>Upcoming Break</h4>
-          <p class="big" id="upcomingBreak">10:00 AM • 15m</p>
-        </div>
-        <div class="tile">
-          <h4>Weekly Focus</h4>
-          <p class="big" id="weeklyFocus">85% Avg</p>
-        </div>
-        <div class="tile full">
-          <h4>Session Snapshot</h4>
-          <p class="muted" id="sessionSnapshot">Mechanics — 30min practice • 10 problems done</p>
-        </div>
-      </div>
-    </article>
-
-    <article class="card chat-card tall">
-      <div class="card-header">
-        <h3>Gemini AI: Explain this concept</h3>
-        <div class="mini">Ask & get concise explanations</div>
-      </div>
-
-      <div class="chat-area">
-        <div id="chatBox" class="chat-box">
-          <div class="chat-item bot">Hello! Ask me anything about your subjects.</div>
-        </div>
-
-        <div class="chat-input">
-          <input id="chatInput" placeholder="Explain phototropism in simple words..." />
-          <button id="sendBtn" class="btn">Send</button>
-        </div>
-
-        <div class="chat-controls">
-          <button class="btn ghost" id="exampleBtn">Try Example</button>
-          <button class="btn ghost" id="clearBtn">Clear</button>
-        </div>
-      </div>
-    </article>
-
-    <!-- Recent Activity -->
-    <article class="card activity-card">
-        <div class="card-header">
-            <h3>Recent Activity</h3>
-            <div class="mini">Last 24 hours</div>
-        </div>
-        <div class="activity-list" id="recentActivityList">
-            <!-- Activities will be injected here by JS -->
-            <div class="activity-item">
-                <span class="activity-icon">📚</span>
-                <span class="activity-text">Completed "Quadratic Equations" quiz.</span>
-                <span class="activity-time">2 hours ago</span>
-            </div>
-            <div class="activity-item">
-                <span class="activity-icon">🤖</span>
-                <span class="activity-text">Asked AI: "What is photosynthesis?"</span>
-                <span class="activity-time">4 hours ago</span>
-            </div>
-            <div class="activity-item">
-                <span class="activity-icon">✍️</span>
-                <span class="activity-text">Revised "Physics Chapter 5".</span>
-                <span class="activity-time">6 hours ago</span>
-            </div>
-        </div>
-    </article>
-
-    <!-- Wellness Check-in -->
-    <article class="card wellness-card">
-      <div class="card-header">
-        <h3>Wellness Check-in</h3>
-        <div class="mini">How are you feeling?</div>
-      </div>
-      <div class="wellness-body">
-        <div class="emoji-row">
-          <button class="emoji" data-value="5">😃</button>
-          <button class="emoji" data-value="4">🙂</button>
-          <button class="emoji" data-value="3">😐</button>
-          <button class="emoji" data-value="2">☹️</button>
-          <button class="emoji" data-value="1">😢</button>
-        </div>
-        <div id="wellnessMsg" class="muted small">No entry yet</div>
-      </div>    
-    </article>
-
-    <!-- Quick Links -->
-    <article class="card quick-links-card">
-        <div class="card-header">
-            <h3>Quick Links</h3>
-            <div class="mini">Access resources</div>
-        </div>
-        <div class="links-grid" id="quickLinksGrid">
-            <!-- Links will be injected here by JS -->
-            <a href="https://ncert.nic.in/textbook.php?iesc1=0-15" class="quick-link-item"><span class="link-icon">📖</span>Textbooks</a>
-            <a href="#" class="quick-link-item"><span class="link-icon">🧪</span>Labs</a>
-            <a href="#" class="quick-link-item"><span class="link-icon">📝</span>Quizzes</a>
-            <a href="#" class="quick-link-item"><span class="link-icon">❓</span>FAQ</a>
-        </div>
-    </article>
-
-  </section>
-</main>
+      <footer>
+        Built for the Hackathon — CodraZ • Prototype (local-only storage). Good luck.
+      </footer>
+    </main>
   </div>
 
-  <!-- Quiz Modal HTML -->
-  <div id="quizModal" class="modal-overlay">
-    <div class="modal-content">
-      <button class="close-modal-btn" id="closeQuizModal">&times;</button>
-      <div class="quiz-container" id="quizContainer">
-        <h3 id="quizQuestion">Question Text Goes Here?</h3>
-        <div class="quiz-options" id="quizOptions">
-          <!-- Options will be injected here -->
-        </div>
-        <button class="btn quiz-next-btn" id="nextQuizQuestion">Next Question</button>
-      </div>
-      <div class="quiz-results" id="quizResults" style="display: none;">
-        <h3>Quiz Complete!</h3>
-        <p>You scored <span id="quizScore">0</span> out of <span id="quizTotalQuestions">0</span></p>
-        <button class="btn quiz-restart-btn" id="restartQuiz">Play Again</button>
-        <button class="btn outline quiz-close-btn" id="closeResultsModal">Close</button>
-      </div>
-    </div>
-  </div>
-  <!-- End Quiz Modal HTML -->
+  <script>
+    /* -------------------------
+       Simple local persistence
+       ------------------------- */
+    const LS_SESSIONS_KEY = 'codraz_sessions_v1';
+    const LS_MOOD_KEY = 'codraz_mood_v1';
 
-  <script src="script.js"></script>
+    function $(id){return document.getElementById(id)}
+
+    // Sessions
+    function loadSessions(){
+      const raw = localStorage.getItem(LS_SESSIONS_KEY);
+      return raw ? JSON.parse(raw) : [];
+    }
+
+    function saveSessions(arr){ localStorage.setItem(LS_SESSIONS_KEY, JSON.stringify(arr)); renderSessions(); updateTodayWidget(); }
+
+    function addSession(){
+      const title = $('session-title').value.trim();
+      if(!title){ alert('Enter a session title'); return; }
+      const time = $('session-time').value || '';
+      const duration = parseInt($('session-duration').value || 25, 10);
+      const sessions = loadSessions();
+      const id = Date.now();
+      sessions.push({id,title,time,duration,completed:false});
+      saveSessions(sessions);
+      $('session-title').value=''; $('session-time').value='';
+    }
+
+    function renderSessions(){
+      const wrap = $('sessions-list'); wrap.innerHTML='';
+      const sessions = loadSessions();
+      if(!sessions.length){ wrap.innerHTML='<div class="small-muted">No sessions yet. Add one to start.</div>'; return; }
+      sessions.forEach(s=>{
+        const div = document.createElement('div'); div.className='task';
+        const left = document.createElement('div'); left.style.flex='1';
+        left.innerHTML = '<div style="font-weight:600">'+escapeHtml(s.title)+'</div><div class="tiny muted">'+(s.time? 'Start at '+s.time+' • ':'')+ s.duration+' min</div>';
+        const right = document.createElement('div'); right.style.display='flex'; right.style.gap='8px'; right.style.alignItems='center';
+        const startBtn = document.createElement('button'); startBtn.className='btn'; startBtn.textContent='Start';
+        startBtn.onclick = ()=> startTimerForSession(s.id);
+        const delBtn = document.createElement('button'); delBtn.className='btn btn-ghost'; delBtn.textContent='Delete';
+        delBtn.onclick = ()=> { if(confirm('Delete session?')){ deleteSession(s.id) } };
+        right.appendChild(startBtn); right.appendChild(delBtn);
+        div.appendChild(left); div.appendChild(right);
+        wrap.appendChild(div);
+      })
+    }
+
+    function deleteSession(id){
+      const arr = loadSessions().filter(s=>s.id !== id);
+      saveSessions(arr);
+    }
+
+    function updateTodayWidget(){
+      const sessions = loadSessions();
+      $('today-sessions').textContent = 'Sessions: '+sessions.length;
+      const moods = loadMood();
+      $('today-mood').textContent = 'Latest mood: '+(moods.length? moodLabel(moods[moods.length-1].val) : '—');
+    }
+
+    // Timer logic
+    let currentTimer = null;
+    function startTimerForSession(id){
+      const sessions = loadSessions();
+      const s = sessions.find(x=>x.id===id);
+      if(!s) return alert('Session not found');
+      if(currentTimer) { if(!confirm('A timer is already running. Stop it and start this one?')) return; stopCurrentTimer(); }
+      const minutes = s.duration;
+      const ms = minutes * 60 * 1000;
+      const start = Date.now();
+      alert('Timer started for '+minutes+' minutes. We will remind you for a break when time finishes.');
+      currentTimer = setTimeout(()=> {
+        alert('Session complete. Time for a short break!');
+        currentTimer = null;
+      }, ms);
+
+      // small UX: allow cancelling
+      const cancel = confirm('Press OK to open a cancelable timer panel (Cancel to skip).');
+      if(cancel){
+        const stop = confirm('Timer is running. Press OK to stop it (simulate completion).');
+        if(stop){ stopCurrentTimer(); alert('Timer stopped manually.') }
+      }
+    }
+
+    function stopCurrentTimer(){ if(currentTimer){ clearTimeout(currentTimer); currentTimer = null; } }
+
+    /* -------------------------
+       Mood tracker
+       ------------------------- */
+    function loadMood(){
+      const raw = localStorage.getItem(LS_MOOD_KEY);
+      return raw ? JSON.parse(raw) : [];
+    }
+    function saveMoodArray(arr){ localStorage.setItem(LS_MOOD_KEY, JSON.stringify(arr)); renderMoodHistory(); updateTodayWidget(); }
+
+    function saveMood(){
+      const val = document.querySelector('#emoji-row .active-emoji') ? document.querySelector('#emoji-row .active-emoji').dataset.val : null;
+      if(!val){ alert('Pick an emoji first'); return; }
+      const note = $('mood-note').value.trim();
+      const arr = loadMood();
+      arr.push({ts: Date.now(), val: parseInt(val,10), note});
+      saveMoodArray(arr);
+      $('mood-note').value='';
+      document.querySelectorAll('#emoji-row .emoji-btn').forEach(b=>b.classList.remove('active-emoji'));
+      alert('Mood saved');
+    }
+
+    function clearMood(){
+      if(confirm('Clear all mood history?')){ localStorage.removeItem(LS_MOOD_KEY); renderMoodHistory(); updateTodayWidget(); }
+    }
+
+    function renderMoodHistory(){
+      const wrap = $('mood-history'); wrap.innerHTML='';
+      const arr = loadMood().slice().reverse();
+      if(!arr.length){ wrap.innerHTML='<div class="small-muted">No mood entries yet.</div>'; return; }
+      arr.forEach(e=>{
+        const d = new Date(e.ts);
+        const el = document.createElement('div'); el.style.marginBottom='8px'; el.className='small-muted';
+        el.innerHTML = <div style="display:flex;justify-content:space-between"><div><strong>${moodEmoji(e.val)}</strong> ${moodLabel(e.val)}</div><div style="font-size:12px;color:var(--muted)">${d.toLocaleString()}</div></div>${e.note? '<div style="margin-top:6px;padding:8px;border-radius:8px;background:#fafafa">'+escapeHtml(e.note)+'</div>':''};
+        wrap.appendChild(el);
+      })
+    }
+
+    function moodEmoji(v){ return ({5:'😄',4:'🙂',3:'😐',2:'😟',1:'😢'})[v] || '—' }
+    function moodLabel(v){ return ({5:'Great',4:'Good',3:'Okay',2:'Low',1:'Bad'})[v] || '—' }
+
+    // emoji buttons
+    document.querySelectorAll('#emoji-row .emoji-btn').forEach(b=>{
+      b.addEventListener('click', ()=> {
+        document.querySelectorAll('#emoji-row .emoji-btn').forEach(x=>x.classList.remove('active-emoji'));
+        b.classList.add('active-emoji');
+      });
+    });
+
+    /* -------------------------
+       Simple chat (mock)
+       ------------------------- */
+    function renderChatMsg(text, who='bot'){
+      const box = $('chat-box');
+      const div = document.createElement('div');
+      div.className = 'msg ' + (who==='user' ? 'user' : 'bot');
+      div.textContent = text;
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function sendChat(){
+      const input = $('chat-input');
+      const text = input.value.trim();
+      if(!text) return;
+      renderChatMsg(text,'user');
+      input.value='';
+      // simple canned responses
+      setTimeout(()=>{
+        const response = generateMockResponse(text);
+        renderChatMsg(response,'bot');
+      }, 700);
+    }
+
+    function generateMockResponse(text){
+      const t = text.toLowerCase();
+      if(t.includes('plan') && t.match(/\\d+/)){ // find minutes
+        const m = (t.match(/(\\d+)\\s*min/) || t.match(/(\\d+)\\s*minutes/) || t.match(/(\\d+)/));
+        const mins = m ? parseInt(m[1],10) : 25;
+        return Try a ${mins}-minute focused session: 5 minute warmup, ${Math.max(15, mins-5)} minutes focused, then a 10-minute break. Would you like a session template?;
+      }
+      if(t.includes('stress') || t.includes('burn') || t.includes('anx')){
+        return 'I suggest a 5-minute breathing break and a 10-minute light study. Log how you feel after the break.';
+      }
+      if(t.includes('todo') || t.includes('plan')){
+        return 'Add a session in the Planner with an estimated duration and time. I can give you a suggested schedule based on your goals.';
+      }
+      return 'Nice. Short suggestion: set a 25–45 minute timer, keep phone away, and note one micro-goal. Want a quick checklist?';
+    }
+
+    /* -------------------------
+       Helpers & boot
+       ------------------------- */
+    function escapeHtml(s){ return s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]); }
+
+    function init(){
+      renderSessions();
+      renderMoodHistory();
+      updateTodayWidget();
+    }
+    init();
+
+    // small UX: wire Enter to chat input
+    $('chat-input').addEventListener('keydown', (e)=>{ if(e.key==='Enter') sendChat(); });
+
+    // Quick demo data if empty (optional)
+    if(!localStorage.getItem(LS_SESSIONS_KEY)){
+      localStorage.setItem(LS_SESSIONS_KEY, JSON.stringify([
+        {id:1,title:'Math — Practice integrals',time:'18:00',duration:30,completed:false},
+        {id:2,title:'Biology — Read chapter 4',time:'20:00',duration:45,completed:false}
+      ]));
+      renderSessions();
+      updateTodayWidget();
+    }
+  </script>
 </body>
 </html>
-
