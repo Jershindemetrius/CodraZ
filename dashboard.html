@@ -13,190 +13,145 @@
     <aside class="sidebar" id="sidebar">
       <div class="brand">
         <div class="brand-logo">🎓</div>
-        <div class="brand-title">CodraZ</div>
+        <div class="brand-title">CodraZ:AI Assistant</div>
       </div>
 
       <nav class="nav" id="mainNav">
         <button class="nav-item active" data-nav="dashboard">🏠 <span>Dashboard</span></button>
-        <button class="nav-item" data-nav="assistant">🤖 <span>AI Assistant</span></button>
-        <button class="nav-item" data-nav="schedule">🗓 <span>Schedule</span></button>
         <button class="nav-item" data-nav="wellness">💚 <span>Wellness</span></button>
+        <button class="nav-item" data-nav="schedule">🗓 <span>Schedule</span></button>
+        <button class="nav-item" data-nav="assistant">🤖 <span>AI Assistant</span></button>
         <button class="nav-item" data-nav="settings">⚙ <span>Settings</span></button>
       </nav>
 
       <div class="sidebar-footer">
-        <div class="version">v1.0 • Offline</div>
+        © 2025 CodraZ v1.0. All Rights Reserved.
       </div>
     </aside>
 
-    <main class="main">
-      <header class="topbar">
-        <div class="title-block">
-          <h1>CodraZ — Your Smart Study Companion</h1>
-          <p class="subtitle">Plan today • Practice • Review</p>
+    <main class="main-content">
+      <header class="header">
+        <div class="search-bar">
+          <input type="search" id="searchInput" placeholder="Search tasks...">
         </div>
+        
+        <div class="user-profile" id="userGreeting"></div>
 
-        <div class="top-actions">
-          <input class="search" id="searchInput" placeholder="Search tasks, topics..." />
-          <button class="icon-btn" id="notifBtn" title="Notifications">🔔</button>
-          <button class="avatar" id="toggleDark" title="Toggle dark mode">🌙</button>
-        </div>
+        <button class="theme-toggle" id="toggleDark">🌙</button>
       </header>
-
-      <section class="grid" id="dashboardView">
-        <!-- Focus Card -->
-        <article class="card focus-card">
-          <div class="card-header">
-            <h3>Focus Today</h3>
-            <div class="mini">Progress</div>
-          </div>
-          <div class="focus-body">
-            <div class="focus-left">
-              <h2 id="focusSubject">No tasks yet</h2>
-              <p class="muted" id="focusDescription">Add a topic or a task to get started</p>
-
-              <div class="progress-wrap">
-                <div class="progress-labels">
-                  <span>Completed</span><span id="focusProgressPct">0%</span>
+      
+      <section id="dashboardView">
+        <div class="grid-container">
+            <div class="card focus-card">
+              <div class="card-header">
+                <h3>Today's Focus</h3>
+              </div>
+              <div class="card-content">
+                <h2 id="focusSubject"></h2>
+                <p id="focusDescription"></p>
+                <div class="progress-bar-container">
+                  <div class="progress-bar">
+                    <div class="progress-bar-fill" id="focusProgressBar" style="width:0%"></div>
+                  </div>
+                  <span id="focusProgressPct">0%</span>
                 </div>
-                <div class="progress">
-                  <div class="progress-fill" id="focusProgressBar" style="width:0%"></div>
-                </div>
-                <div class="task-row">
+              </div>
+            </div>
+
+            <div class="card stats-card">
+              <div class="card-header">
+                <h3>Your Stats</h3>
+              </div>
+              <div class="stat-item">
+                <div class="stat-icon">📚</div>
+                <div class="stat-value" id="focusTasks">0</div>
+                <div class="stat-label">Tasks Today</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-icon">🎯</div>
+                <div class="stat-value" id="focusScore">0</div>
+                <div class="stat-label">Avg. Score</div>
+              </div>
+            </div>
+
+            <div class="card schedule-card">
+                <div class="card-header">
+                  <h3>Upcoming Schedule</h3>
                   <button class="btn small" id="addTaskBtn">Add Task</button>
-                  <button class="btn outline small" id="markAllDoneBtn">Mark All Done</button>
                 </div>
+                <div class="calendar">
+                    <div class="cal-days" id="daysRow"></div>
+                    <div class="cal-events" id="scheduleEvents"></div>
+                </div>
+            </div>
+            
+            <div class="card activity-card">
+              <div class="card-header">
+                <h3>Recent Activity</h3>
               </div>
-            </div>
-            <div class="focus-right">
-              <div class="stat">
-                <div class="num" id="focusTasks">0</div>
-                <div class="lbl">Tasks</div>
-              </div>
-              <div class="stat">
-                <div class="num" id="focusScore">0</div>
-                <div class="lbl">Avg Score</div>
-              </div>
-            </div>
-          </div>
-        </article>
-
-        <!-- Smart Schedule -->
-        <article class="card schedule-card">
-          <div class="card-header">
-            <h3>Smart Schedule</h3>
-            <div class="mini">This week</div>
-          </div>
-          <div class="calendar">
-            <div class="cal-row" id="daysRow">
-              <!-- Days injected -->
+              <div id="recentActivityList"></div>
             </div>
 
-            <div class="cal-events" id="scheduleEvents">
-              <!-- Events injected -->
+             <div class="card wellness-card" id="wellness">
+                <div class="card-header"><h3>Wellness Check</h3></div>
+                <p>How are you feeling right now?</p>
+                <div class="emoji-buttons">
+                    <button class="emoji" data-value="1">😩</button>
+                    <button class="emoji" data-value="2">😟</button>
+                    <button class="emoji" data-value="3">😐</button>
+                    <button class="emoji" data-value="4">😊</button>
+                    <button class="emoji" data-value="5">😃</button>
+                </div>
+                <p id="wellnessMsg" class="wellness-message"></p>
             </div>
-
-            <div class="cal-legend">
-              <span class="legend-item"><span class="dot math"></span>Study</span>
-              <span class="legend-item"><span class="dot break"></span>Break</span>
-            </div>
-          </div>
-        </article>
-
-        <!-- Learning / Chat -->
-        <article class="card chat-card tall" id="assistantView">
-          <div class="card-header">
-            <h3>AI Assistant</h3>
-            <div class="mini">Ask a question — simulated replies</div>
-          </div>
-
-          <div class="chat-area">
-            <div id="chatBox" class="chat-box" aria-live="polite"></div>
-
-            <div class="chat-input">
-              <input id="chatInput" placeholder="Explain Newton's 2nd law in simple words..." />
-              <button id="sendBtn" class="btn">Send</button>
-            </div>
-
-            <div class="chat-controls">
-              <button class="btn ghost" id="exampleBtn">Try Example</button>
-              <button class="btn ghost" id="clearBtn">Clear</button>
-            </div>
-          </div>
-        </article>
-
-        <!-- Recent Activity -->
-        <article class="card activity-card">
-          <div class="card-header">
-            <h3>Recent Activity</h3>
-            <div class="mini">Latest</div>
-          </div>
-          <div class="activity-list" id="recentActivityList">
-            <!-- injected -->
-          </div>
-        </article>
-
-        <!-- Wellness -->
-        <article class="card wellness-card">
-          <div class="card-header">
-            <h3>Wellness Check-in</h3>
-            <div class="mini">How are you feeling?</div>
-          </div>
-          <div class="wellness-body">
-            <div class="emoji-row">
-              <button class="emoji" data-value="5">😃</button>
-              <button class="emoji" data-value="4">🙂</button>
-              <button class="emoji" data-value="3">😐</button>
-              <button class="emoji" data-value="2">☹</button>
-              <button class="emoji" data-value="1">😢</button>
-            </div>
-            <div id="wellnessMsg" class="muted small">No entry yet</div>
-          </div>
-        </article>
-
-        <!-- Quick Links -->
-        <article class="card quick-links-card">
-          <div class="card-header">
-            <h3>Quick Links</h3>
-            <div class="mini">Resources</div>
-          </div>
-          <div class="links-grid" id="quickLinksGrid">
-            <a href="https://ncert.nic.in/textbook.php?iesc1=0-15" target="_blank" class="quick-link-item">
-              <span class="link-icon">📖</span>Textbooks
-            </a>
-            <a href="#" class="quick-link-item"><span class="link-icon">📝</span>Quizzes</a>
-            <a href="#" class="quick-link-item"><span class="link-icon">🧩</span>Practice</a>
-            <a href="#" class="quick-link-item"><span class="link-icon">❓</span>FAQ</a>
-          </div>
-        </article>
+        </div>
       </section>
 
-      <!-- Schedule view (hidden by default) -->
-      <section id="scheduleEditor" class="panel hidden">
-        <div class="panel-inner">
-          <div class="panel-header">
-            <h2>Manage Schedule</h2>
-            <button class="btn outline" id="backToDash">Back</button>
-          </div>
+      <section id="assistantView" class="hidden">
+         <div class="card chat-card">
+            <div class="card-header">
+                <h3>AI Assistant</h3>
+            </div>
+            <div id="chatBox" class="chat-box"></div>
+            <div class="chat-input-area">
+                <input type="text" id="chatInput" placeholder="Ask me anything...">
+                <button id="sendBtn" class="btn">Send</button>
+            </div>
+            <div class="chat-actions">
+                <button id="exampleBtn" class="btn outline small">Example</button>
+                <button id="clearBtn" class="btn outline small">Clear Chat</button>
+            </div>
+        </div>
+      </section>
 
-          <div class="panel-content">
+      <section id="scheduleEditor" class="hidden">
+        <div class="editor-container">
+          <div class="editor-header">
+            <h2>Manage Schedule</h2>
+            <button class="btn outline" id="backToDash">Back to Dashboard</button>
+          </div>
+          
+          <div class="editor-content">
             <form id="taskForm" class="task-form">
-              <label>
-                Title
-                <input id="taskTitle" required placeholder="e.g., Trigonometry practice" />
-              </label>
-              <label>
-                Topic
-                <input id="taskTopic" placeholder="e.g., Trig / Algebra" />
-              </label>
-              <label>
-                Day
-                <select id="taskDay"></select>
-              </label>
-              <label>
-                Time
-                <input id="taskTime" type="time" value="16:00" />
-              </label>
+              <h4>Add / Edit Task</h4>
+              <div class="form-group">
+                <label for="taskTitle">Title</label>
+                <input type="text" id="taskTitle" placeholder="e.g., Physics Chapter 5" required>
+              </div>
+              <div class="form-group">
+                <label for="taskTopic">Topic / Description</label>
+                <input type="text" id="taskTopic" placeholder="e.g., Thermodynamics">
+              </div>
+              <div class="form-group-row">
+                <div class="form-group">
+                  <label for="taskDay">Day</label>
+                  <select id="taskDay"></select>
+                </div>
+                <div class="form-group">
+                  <label for="taskTime">Time</label>
+                  <input type="time" id="taskTime" value="16:00">
+                </div>
+              </div>
               <div class="form-actions">
                 <button class="btn" id="saveTaskBtn">Save Task</button>
                 <button class="btn outline" id="clearFormBtn" type="button">Clear</button>
@@ -205,20 +160,18 @@
 
             <div class="tasks-list-wrap">
               <h4>Your Tasks</h4>
+               <button class="btn small outline" id="markAllDoneBtn">Mark Today's Practiced Tasks Done</button>
               <div id="tasksList" class="tasks-list"></div>
             </div>
           </div>
         </div>
       </section>
-
     </main>
   </div>
 
-  <!-- Quiz Modal -->
   <div id="quizModal" class="modal-overlay" aria-hidden="true">
     <div class="modal-content">
       <button class="close-modal-btn" id="closeQuizModal">&times;</button>
-
       <div id="quizContainer" class="quiz-container">
         <h3 id="quizQuestion">Question</h3>
         <div id="quizOptions" class="quiz-options"></div>
@@ -227,12 +180,11 @@
           <button id="nextQuizQuestion" class="btn">Next</button>
         </div>
       </div>
-
       <div id="quizResults" class="quiz-results" style="display:none;">
         <h3>Quiz Complete!</h3>
         <p>You scored <strong id="quizScore">0</strong> out of <span id="quizTotalQuestions">50</span></p>
         <div class="results-actions">
-          <button id="restartQuiz" class="btn">Play Again</button>
+          <button id="restartQuiz" class="btn">Practice Again</button>
           <button id="closeResultsModal" class="btn outline">Close</button>
         </div>
       </div>
