@@ -1,246 +1,243 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>CodraZ AI Assistance— Dashboard</title>
+  <title>CodraZ — Student Scheduler & Study Companion</title>
+  <link rel="stylesheet" href="style.css" />
   <link rel="preconnect" href="https://fonts.gstatic.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="app">
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
       <div class="brand">
         <div class="brand-logo">🎓</div>
-        <div class="brand-title">CodraZ AI Assistance</div>
+        <div class="brand-title">CodraZ</div>
       </div>
-        <nav class="nav">
-    <button class="nav-item active" data-nav-id="dashboard"><span class="icon">🏠</span><span class="label">Dashboard</span></button>
-    <button class="nav-item" data-nav-id="assistant"><span class="icon">🤖</span><span class="label">AI Assistant</span></button>
-    <button class="nav-item" data-nav-id="schedule"><span class="icon">🗓️</span><span class="label">Schedule</span></button>
-    <button class="nav-item" data-nav-id="wellness"><span class="icon">💚</span><span class="label">Wellness</span></button>
-    <button class="nav-item" data-nav-id="settings"><span class="icon">⚙️</span><span class="label">Settings</span></button>
-  </nav>
 
-  <div class="sidebar-footer">
-    <p>&copy; 2025 CodraZ AI. All rights reserved.</p>
-    <p>Version 1.0</p>
-  </div>
-</aside>
-<main class="main">
-  <header class="topbar">
-    <div class="title-block">
-      <h1>CodraZ: Your Smart Study Companion</h1>
-      <p class="subtitle">Phase 3 • Visual Design & Mockups — Dashboard & Core Features</p>
-    </div>
+      <nav class="nav" id="mainNav">
+        <button class="nav-item active" data-nav="dashboard">🏠 <span>Dashboard</span></button>
+        <button class="nav-item" data-nav="assistant">🤖 <span>AI Assistant</span></button>
+        <button class="nav-item" data-nav="schedule">🗓 <span>Schedule</span></button>
+        <button class="nav-item" data-nav="wellness">💚 <span>Wellness</span></button>
+        <button class="nav-item" data-nav="settings">⚙ <span>Settings</span></button>
+      </nav>
 
-    <div class="top-actions">
-      <input class="search" placeholder="Search learning, topics..." />
-      <button class="icon-btn" aria-label="Notifications">🔔</button>
-      <!-- User profile will be dynamically updated by JS -->
-      <button class="avatar" aria-label="User Profile" id="userAvatar">JD</button>
-    </div>
-  </header>
-
-  <section class="grid">
-    <article class="card focus-card">
-      <div class="card-header">
-        <h3>Focus Today</h3>
-        <div class="mini">Progress</div>
+      <div class="sidebar-footer">
+        <div class="version">v1.0 • Offline</div>
       </div>
-      <div class="focus-body">
-        <div class="focus-left">
-          <h2 id="focusSubject">Trigonometric Functions</h2>
-          <p class="muted" id="focusDescription">Complete chapter exercises and revise identities</p>
+    </aside>
 
-          <div class="progress-wrap">
-            <div class="progress-labels">
-              <span>Completed</span><span id="focusProgressPct">60%</span>
+    <main class="main">
+      <header class="topbar">
+        <div class="title-block">
+          <h1>CodraZ — Your Smart Study Companion</h1>
+          <p class="subtitle">Plan today • Practice • Review</p>
+        </div>
+
+        <div class="top-actions">
+          <input class="search" id="searchInput" placeholder="Search tasks, topics..." />
+          <button class="icon-btn" id="notifBtn" title="Notifications">🔔</button>
+          <button class="avatar" id="toggleDark" title="Toggle dark mode">🌙</button>
+        </div>
+      </header>
+
+      <section class="grid" id="dashboardView">
+        <!-- Focus Card -->
+        <article class="card focus-card">
+          <div class="card-header">
+            <h3>Focus Today</h3>
+            <div class="mini">Progress</div>
+          </div>
+          <div class="focus-body">
+            <div class="focus-left">
+              <h2 id="focusSubject">No tasks yet</h2>
+              <p class="muted" id="focusDescription">Add a topic or a task to get started</p>
+
+              <div class="progress-wrap">
+                <div class="progress-labels">
+                  <span>Completed</span><span id="focusProgressPct">0%</span>
+                </div>
+                <div class="progress">
+                  <div class="progress-fill" id="focusProgressBar" style="width:0%"></div>
+                </div>
+                <div class="task-row">
+                  <button class="btn small" id="addTaskBtn">Add Task</button>
+                  <button class="btn outline small" id="markAllDoneBtn">Mark All Done</button>
+                </div>
+              </div>
             </div>
-            <div class="progress">
-              <div class="progress-fill" style="width:60%" id="focusProgressBar"></div>
-            </div>
-            <div class="task-row">
-              <button class="btn small">Start Practice</button>
-              <button class="btn outline small">Mark Done</button>
+            <div class="focus-right">
+              <div class="stat">
+                <div class="num" id="focusTasks">0</div>
+                <div class="lbl">Tasks</div>
+              </div>
+              <div class="stat">
+                <div class="num" id="focusScore">0</div>
+                <div class="lbl">Avg Score</div>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="focus-right">
-          <div class="stat">
-            <div class="num" id="focusTasks">4</div>
-            <div class="lbl">Tasks</div>
+        </article>
+
+        <!-- Smart Schedule -->
+        <article class="card schedule-card">
+          <div class="card-header">
+            <h3>Smart Schedule</h3>
+            <div class="mini">This week</div>
           </div>
-          <div class="stat">
-            <div class="num" id="focusScore">95</div>
-            <div class="lbl">Focus Score</div>
+          <div class="calendar">
+            <div class="cal-row" id="daysRow">
+              <!-- Days injected -->
+            </div>
+
+            <div class="cal-events" id="scheduleEvents">
+              <!-- Events injected -->
+            </div>
+
+            <div class="cal-legend">
+              <span class="legend-item"><span class="dot math"></span>Study</span>
+              <span class="legend-item"><span class="dot break"></span>Break</span>
+            </div>
           </div>
-        </div>
-      </div>
-    </article>
+        </article>
 
-    <!-- Smart Schedule -->
-    <article class="card schedule-card">
-      <div class="card-header">
-        <h3>Smart Schedule</h3>
-        <div class="mini">This week</div>
-      </div>
-      <div class="calendar">
-        <div class="cal-row">
-          <div class="cal-day">Mon</div>
-          <div class="cal-day">Tue</div>
-          <div class="cal-day">Wed</div>
-          <div class="cal-day">Thu</div>
-          <div class="cal-day">Fri</div>
-          <div class="cal-day">Sat</div>
-          <div class="cal-day">Sun</div>
-        </div>
+        <!-- Learning / Chat -->
+        <article class="card chat-card tall" id="assistantView">
+          <div class="card-header">
+            <h3>AI Assistant</h3>
+            <div class="mini">Ask a question — simulated replies</div>
+          </div>
 
-        <div class="cal-events" id="scheduleEvents">
-          <!-- Events will be injected here by JS -->
-          <div class="event math">Math • 09:00 - 10:30</div>
-          <div class="event physics">Physics • 11:00 - 12:30</div>
-          <div class="event break">Break • 12:30 - 13:00</div>
-        </div>
+          <div class="chat-area">
+            <div id="chatBox" class="chat-box" aria-live="polite"></div>
 
-        <div class="cal-legend">
-          <span class="legend-item"><span class="dot math"></span>Math</span>
-          <span class="legend-item"><span class="dot physics"></span>Physics</span>
-          <span class="legend-item"><span class="dot break"></span>Break</span>
-        </div>
-      </div>
-    </article>
+            <div class="chat-input">
+              <input id="chatInput" placeholder="Explain Newton's 2nd law in simple words..." />
+              <button id="sendBtn" class="btn">Send</button>
+            </div>
 
-    <!-- Learning Chatflash -->
-    <article class="card learning-card">
-      <div class="card-header">
-        <h3>Learning Chatflash</h3>
-        <div class="mini">Rapid revision + Breaks</div>
-      </div>
+            <div class="chat-controls">
+              <button class="btn ghost" id="exampleBtn">Try Example</button>
+              <button class="btn ghost" id="clearBtn">Clear</button>
+            </div>
+          </div>
+        </article>
 
-      <div class="learning-body">
-        <div class="tile">
-          <h4>Upcoming Break</h4>
-          <p class="big" id="upcomingBreak">10:00 AM • 15m</p>
-        </div>
-        <div class="tile">
-          <h4>Weekly Focus</h4>
-          <p class="big" id="weeklyFocus">85% Avg</p>
-        </div>
-        <div class="tile full">
-          <h4>Session Snapshot</h4>
-          <p class="muted" id="sessionSnapshot">Mechanics — 30min practice • 10 problems done</p>
-        </div>
-      </div>
-    </article>
-
-    <article class="card chat-card tall">
-      <div class="card-header">
-        <h3>Gemini AI: Explain this concept</h3>
-        <div class="mini">Ask & get concise explanations</div>
-      </div>
-
-      <div class="chat-area">
-        <div id="chatBox" class="chat-box">
-          <div class="chat-item bot">Hello! Ask me anything about your subjects.</div>
-        </div>
-
-        <div class="chat-input">
-          <input id="chatInput" placeholder="Explain phototropism in simple words..." />
-          <button id="sendBtn" class="btn">Send</button>
-        </div>
-
-        <div class="chat-controls">
-          <button class="btn ghost" id="exampleBtn">Try Example</button>
-          <button class="btn ghost" id="clearBtn">Clear</button>
-        </div>
-      </div>
-    </article>
-
-    <!-- Recent Activity -->
-    <article class="card activity-card">
-        <div class="card-header">
+        <!-- Recent Activity -->
+        <article class="card activity-card">
+          <div class="card-header">
             <h3>Recent Activity</h3>
-            <div class="mini">Last 24 hours</div>
-        </div>
-        <div class="activity-list" id="recentActivityList">
-            <!-- Activities will be injected here by JS -->
-            <div class="activity-item">
-                <span class="activity-icon">📚</span>
-                <span class="activity-text">Completed "Quadratic Equations" quiz.</span>
-                <span class="activity-time">2 hours ago</span>
-            </div>
-            <div class="activity-item">
-                <span class="activity-icon">🤖</span>
-                <span class="activity-text">Asked AI: "What is photosynthesis?"</span>
-                <span class="activity-time">4 hours ago</span>
-            </div>
-            <div class="activity-item">
-                <span class="activity-icon">✍️</span>
-                <span class="activity-text">Revised "Physics Chapter 5".</span>
-                <span class="activity-time">6 hours ago</span>
-            </div>
-        </div>
-    </article>
+            <div class="mini">Latest</div>
+          </div>
+          <div class="activity-list" id="recentActivityList">
+            <!-- injected -->
+          </div>
+        </article>
 
-    <!-- Wellness Check-in -->
-    <article class="card wellness-card">
-      <div class="card-header">
-        <h3>Wellness Check-in</h3>
-        <div class="mini">How are you feeling?</div>
-      </div>
-      <div class="wellness-body">
-        <div class="emoji-row">
-          <button class="emoji" data-value="5">😃</button>
-          <button class="emoji" data-value="4">🙂</button>
-          <button class="emoji" data-value="3">😐</button>
-          <button class="emoji" data-value="2">☹️</button>
-          <button class="emoji" data-value="1">😢</button>
-        </div>
-        <div id="wellnessMsg" class="muted small">No entry yet</div>
-      </div>    
-    </article>
+        <!-- Wellness -->
+        <article class="card wellness-card">
+          <div class="card-header">
+            <h3>Wellness Check-in</h3>
+            <div class="mini">How are you feeling?</div>
+          </div>
+          <div class="wellness-body">
+            <div class="emoji-row">
+              <button class="emoji" data-value="5">😃</button>
+              <button class="emoji" data-value="4">🙂</button>
+              <button class="emoji" data-value="3">😐</button>
+              <button class="emoji" data-value="2">☹</button>
+              <button class="emoji" data-value="1">😢</button>
+            </div>
+            <div id="wellnessMsg" class="muted small">No entry yet</div>
+          </div>
+        </article>
 
-    <!-- Quick Links -->
-    <article class="card quick-links-card">
-        <div class="card-header">
+        <!-- Quick Links -->
+        <article class="card quick-links-card">
+          <div class="card-header">
             <h3>Quick Links</h3>
-            <div class="mini">Access resources</div>
-        </div>
-        <div class="links-grid" id="quickLinksGrid">
-            <!-- Links will be injected here by JS -->
-            <a href="https://ncert.nic.in/textbook.php?iesc1=0-15" class="quick-link-item"><span class="link-icon">📖</span>Textbooks</a>
-            <a href="#" class="quick-link-item"><span class="link-icon">🧪</span>Labs</a>
+            <div class="mini">Resources</div>
+          </div>
+          <div class="links-grid" id="quickLinksGrid">
+            <a href="https://ncert.nic.in/textbook.php?iesc1=0-15" target="_blank" class="quick-link-item">
+              <span class="link-icon">📖</span>Textbooks
+            </a>
             <a href="#" class="quick-link-item"><span class="link-icon">📝</span>Quizzes</a>
+            <a href="#" class="quick-link-item"><span class="link-icon">🧩</span>Practice</a>
             <a href="#" class="quick-link-item"><span class="link-icon">❓</span>FAQ</a>
-        </div>
-    </article>
+          </div>
+        </article>
+      </section>
 
-  </section>
-</main>
+      <!-- Schedule view (hidden by default) -->
+      <section id="scheduleEditor" class="panel hidden">
+        <div class="panel-inner">
+          <div class="panel-header">
+            <h2>Manage Schedule</h2>
+            <button class="btn outline" id="backToDash">Back</button>
+          </div>
+
+          <div class="panel-content">
+            <form id="taskForm" class="task-form">
+              <label>
+                Title
+                <input id="taskTitle" required placeholder="e.g., Trigonometry practice" />
+              </label>
+              <label>
+                Topic
+                <input id="taskTopic" placeholder="e.g., Trig / Algebra" />
+              </label>
+              <label>
+                Day
+                <select id="taskDay"></select>
+              </label>
+              <label>
+                Time
+                <input id="taskTime" type="time" value="16:00" />
+              </label>
+              <div class="form-actions">
+                <button class="btn" id="saveTaskBtn">Save Task</button>
+                <button class="btn outline" id="clearFormBtn" type="button">Clear</button>
+              </div>
+            </form>
+
+            <div class="tasks-list-wrap">
+              <h4>Your Tasks</h4>
+              <div id="tasksList" class="tasks-list"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
   </div>
 
-  <!-- Quiz Modal HTML -->
-  <div id="quizModal" class="modal-overlay">
+  <!-- Quiz Modal -->
+  <div id="quizModal" class="modal-overlay" aria-hidden="true">
     <div class="modal-content">
       <button class="close-modal-btn" id="closeQuizModal">&times;</button>
-      <div class="quiz-container" id="quizContainer">
-        <h3 id="quizQuestion">Question Text Goes Here?</h3>
-        <div class="quiz-options" id="quizOptions">
-          <!-- Options will be injected here -->
+
+      <div id="quizContainer" class="quiz-container">
+        <h3 id="quizQuestion">Question</h3>
+        <div id="quizOptions" class="quiz-options"></div>
+        <div class="quiz-footer">
+          <div class="quiz-progress" id="quizProgressText">0 / 50</div>
+          <button id="nextQuizQuestion" class="btn">Next</button>
         </div>
-        <button class="btn quiz-next-btn" id="nextQuizQuestion">Next Question</button>
       </div>
-      <div class="quiz-results" id="quizResults" style="display: none;">
+
+      <div id="quizResults" class="quiz-results" style="display:none;">
         <h3>Quiz Complete!</h3>
-        <p>You scored <span id="quizScore">0</span> out of <span id="quizTotalQuestions">0</span></p>
-        <button class="btn quiz-restart-btn" id="restartQuiz">Play Again</button>
-        <button class="btn outline quiz-close-btn" id="closeResultsModal">Close</button>
+        <p>You scored <strong id="quizScore">0</strong> out of <span id="quizTotalQuestions">50</span></p>
+        <div class="results-actions">
+          <button id="restartQuiz" class="btn">Play Again</button>
+          <button id="closeResultsModal" class="btn outline">Close</button>
+        </div>
       </div>
     </div>
   </div>
-  <!-- End Quiz Modal HTML -->
 
   <script src="script.js"></script>
 </body>
