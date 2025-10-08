@@ -13,19 +13,18 @@
     <aside class="sidebar" id="sidebar">
       <div class="brand">
         <div class="brand-logo">🎓</div>
-        <div class="brand-title">CodraZ:AI Assistant</div>
+        <div class="brand-title">CodraZ</div>
       </div>
 
       <nav class="nav" id="mainNav">
         <button class="nav-item active" data-nav="dashboard">🏠 <span>Dashboard</span></button>
-        <button class="nav-item" data-nav="wellness">💚 <span>Wellness</span></button>
-        <button class="nav-item" data-nav="schedule">🗓 <span>Schedule</span></button>
         <button class="nav-item" data-nav="assistant">🤖 <span>AI Assistant</span></button>
-        <button class="nav-item" data-nav="settings">⚙ <span>Settings</span></button>
+        <button class="nav-item" data-nav="schedule">🗓 <span>Schedule</span></button>
+        <button class="nav-item" data-nav="wellness">💚 <span>Wellness</span></button>
       </nav>
 
       <div class="sidebar-footer">
-        © 2025 CodraZ v1.0. All Rights Reserved.
+        © 2025 CodraZ Axiom
       </div>
     </aside>
 
@@ -91,19 +90,22 @@
               </div>
               <div id="recentActivityList"></div>
             </div>
-
-             <div class="card wellness-card" id="wellness">
-                <div class="card-header"><h3>Wellness Check</h3></div>
-                <p>How are you feeling right now?</p>
-                <div class="emoji-buttons">
-                    <button class="emoji" data-value="1">😩</button>
-                    <button class="emoji" data-value="2">😟</button>
-                    <button class="emoji" data-value="3">😐</button>
-                    <button class="emoji" data-value="4">😊</button>
-                    <button class="emoji" data-value="5">😃</button>
-                </div>
-                <p id="wellnessMsg" class="wellness-message"></p>
+            
             </div>
+      </section>
+
+      <section id="wellnessView" class="hidden">
+        <div class="card wellness-card-standalone">
+            <div class="card-header"><h3>Wellness Check</h3></div>
+            <p>How are you feeling right now?</p>
+            <div class="emoji-buttons">
+                <button class="emoji" data-value="1">😩</button>
+                <button class="emoji" data-value="2">😟</button>
+                <button class="emoji" data-value="3">😐</button>
+                <button class="emoji" data-value="4">😊</button>
+                <button class="emoji" data-value="5">😃</button>
+            </div>
+            <p id="wellnessMsg" class="wellness-message"></p>
         </div>
       </section>
 
