@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -70,73 +71,75 @@
 <body>
   <div class="Signup-box">
     <h2>Sign Up</h2>
-    <form id="signupForm"> <input type="text" id="signupName" placeholder="Name" required><br>
+    <form id="signupForm"> <!-- Add an ID to the form -->
+        <input type="text" id="signupName" placeholder="Name" required><br>
         <input type="email" id="signupEmail" placeholder="E-mail" required><br>
         <input type="number" id="signupAge" placeholder="Age" required><br>
         <input type="date" id="signupDob" placeholder="Date of Birth" required><br>
         <input type="password" id="signupPassword" placeholder="Password" required><br>
         <input type="password" id="signupRePassword" placeholder="re-enter Password" required><br>
-        <button type="submit">Sign Up</button> <a href="login.html">Already have an account? Login</a>
+        <button type="submit">Sign Up</button> <!-- Ensure this is type="submit" -->
+        <a href='/login'>Already have an account? Login</a>
         <p id="signupError" style="color: red;"></p>
     </form>
   </div>
 
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-<script>
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
+  <!-- Firebase SDKs and Init -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <script>
+    // IMPORTANT: Replace with your actual Firebase config
+   const firebaseConfig = {
   apiKey: "AIzaSyBbTQQ6ztZiYGjXSiwhKa700QxqFMRrD_Y",
   authDomain: "codraz-3e717.firebaseapp.com",
   projectId: "codraz-3e717",
-  storageBucket: "codraz-3e717.appspot.com", // ✅ THIS LINE IS NOW CORRECTED
+  storageBucket: "codraz-3e717.firebasestorage.app",
   messagingSenderId: "522391481845",
   appId: "1:522391481845:web:7aa2219ecfc4949accc4bc",
   measurementId: "G-XNBPG86LCN"
 };
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.firestore();
 
-  document.getElementById('signupForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore(); // For storing extra user data
 
-    const name = document.getElementById('signupName').value;
-    const email = document.getElementById('signupEmail').value;
-    const age = document.getElementById('signupAge').value;
-    const dob = document.getElementById('signupDob').value;
-    const password = document.getElementById('signupPassword').value;
-    const rePassword = document.getElementById('signupRePassword').value;
-    const errorDisplay = document.getElementById('signupError');
-    errorDisplay.textContent = '';
+    document.getElementById('signupForm').addEventListener('submit', async (e) => {
+      e.preventDefault(); // Prevent default form submission
 
-    if (password !== rePassword) {
-      errorDisplay.textContent = "Passwords do not match.";
-      return;
-    }
+      const name = document.getElementById('signupName').value;
+      const email = document.getElementById('signupEmail').value;
+      const age = document.getElementById('signupAge').value;
+      const dob = document.getElementById('signupDob').value;
+      const password = document.getElementById('signupPassword').value;
+      const rePassword = document.getElementById('signupRePassword').value;
+      const errorDisplay = document.getElementById('signupError');
+      errorDisplay.textContent = ''; // Clear previous errors
 
-    try {
-      const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-      const user = userCredential.user;
+      if (password !== rePassword) {
+        errorDisplay.textContent = "Passwords do not match.";
+        return;
+      }
 
-      // Store extra user details in Firestore
-      await db.collection('users').doc(user.uid).set({
-        name: name,
-        email: email,
-        age: age,
-        dob: dob,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
+      try {
+        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        const user = userCredential.user;
 
-      alert("Sign-up successful! You can now log in.");
-      window.location.href = 'login.html';
-    } catch (error) {
-      console.error("Error signing up:", error);
-      errorDisplay.textContent = "Error: " + error.message;
-    }
-  });
-</script>
+        // Store additional user data in Firestore (optional but good practice)
+        await db.collection('users').doc(user.uid).set({
+          name: name,
+          email: email,
+          age: age,
+          dob: dob
+        });
 
+        alert("Sign up successful! You can now log in.");
+        window.location.href = 'login.html'; // Redirect to login page
+      } catch (error) {
+        console.error("Error signing up:", error);
+        errorDisplay.textContent = "Error: " + error.message;
+      }
+    });
+  </script>
 </body>
 </html>
