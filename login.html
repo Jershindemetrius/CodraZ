@@ -99,7 +99,6 @@
     </form>
   </div>
 
-  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
@@ -110,11 +109,12 @@ const firebaseConfig = {
   apiKey: "AIzaSyBbTQQ6ztZiYGjXSiwhKa700QxqFMRrD_Y",
   authDomain: "codraz-3e717.firebaseapp.com",
   projectId: "codraz-3e717",
-  storageBucket: "storageBucket: "codraz-3e717.appspot.com",
+  storageBucket: "codraz-3e717.appspot.com", // ✅ THIS LINE IS NOW CORRECTED
   messagingSenderId: "522391481845",
   appId: "1:522391481845:web:7aa2219ecfc4949accc4bc",
   measurementId: "G-XNBPG86LCN"
 };
+
     if (!firebase.apps.length) {
       firebase.initializeApp(firebaseConfig);
     }
@@ -181,5 +181,3 @@ const firebaseConfig = {
   </script>
 </body>
 </html>
-
-
