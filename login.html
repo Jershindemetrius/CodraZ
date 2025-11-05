@@ -106,15 +106,15 @@
 
   <script>
     // ✅ Correct Firebase Configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyBbTQQ6ztZiYGjXSiwhKa700QxqFMRrD_Y",
-      authDomain: "codraz-3e717.firebaseapp.com",
-      projectId: "codraz-3e717",
-      storageBucket: "codraz-3e717.appspot.com", // ✅ fixed .appspot.com
-      messagingSenderId: "522391481845",
-      appId: "1:522391481845:web:7aa2219ecfc4949accc4bc",
-      measurementId: "G-XNBPG86LCN"
-    };
+   const firebaseConfig = {
+    apiKey: "AIzaSyBbTQQ6ztZiYGjXSiwhKa700QxqFMRrD_Y",
+    authDomain: "codraz-3e717.firebaseapp.com",
+    projectId: "codraz-3e717",
+    storageBucket: "codraz-3e717.firebasestorage.app",
+    messagingSenderId: "522391481845",
+    appId: "1:522391481845:web:7aa2219ecfc4949accc4bc",
+    measurementId: "G-XNBPG86LCN"
+  };
 
     if (!firebase.apps.length) {
       firebase.initializeApp(firebaseConfig);
@@ -177,13 +177,6 @@
       } finally {
         loginButton.textContent = "Login";
         loginButton.disabled = false;
-      }
-    });
-
-    // 🚀 Auto Redirect if Already Logged In
-    auth.onAuthStateChanged(user => {
-      if (user) {
-        window.location.href = "dashboard.html";
       }
     });
   </script>
