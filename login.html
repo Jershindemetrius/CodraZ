@@ -110,7 +110,7 @@
       apiKey: "AIzaSyBbTQQ6ztZiYGjXSiwhKa700QxqFMRrD_Y",
       authDomain: "codraz-3e717.firebaseapp.com",
       projectId: "codraz-3e717",
-      storageBucket: "codraz-3e717.appspot.com", // ✅ fixed '.appspot.com'
+      storageBucket: "codraz-3e717.appspot.com", // ✅ fixed .appspot.com
       messagingSenderId: "522391481845",
       appId: "1:522391481845:web:7aa2219ecfc4949accc4bc",
       measurementId: "G-XNBPG86LCN"
@@ -123,13 +123,18 @@
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    // 🔑 Toggle Password Visibility
+    // ✅ Force Firestore Online Mode (fixes client offline error)
+    db.enableNetwork()
+      .then(() => console.log("Firestore online"))
+      .catch(err => console.error("Network enable failed:", err));
+
+    // 👁️ Toggle Password Visibility
     function togglePassword() {
       const pass = document.getElementById("loginPassword");
       pass.type = pass.type === "password" ? "text" : "password";
     }
 
-    // 🧠 Handle Login
+    // 🔑 Handle Login
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
 
@@ -147,28 +152,40 @@
         const userCredential = await auth.signInWithEmailAndPassword(email, password);
         const user = userCredential.user;
 
+        // ✅ Ensure Firestore network is ready before fetch
+        await db.enableNetwork();
+
         // ✅ Fetch user name from Firestore
         const doc = await db.collection('users').doc(user.uid).get();
 
         if (doc.exists) {
           const userData = doc.data();
-          // Save name to localStorage for Dashboard
           localStorage.setItem('username', userData.name || 'User');
         } else {
           localStorage.setItem('username', 'User');
         }
 
-        // Redirect to Dashboard
+        // ✅ Redirect to Dashboard
         window.location.href = 'dashboard.html';
       } catch (error) {
         console.error("Login Error:", error);
-        errorDisplay.textContent = "Error: " + error.message;
+        if (error.message.includes("offline")) {
+          errorDisplay.textContent = "⚠️ Please check your internet connection.";
+        } else {
+          errorDisplay.textContent = "Error: " + error.message;
+        }
       } finally {
         loginButton.textContent = "Login";
         loginButton.disabled = false;
       }
     });
+
+    // 🚀 Auto Redirect if Already Logged In
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        window.location.href = "dashboard.html";
+      }
+    });
   </script>
 </body>
 </html>
-
