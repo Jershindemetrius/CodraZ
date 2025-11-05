@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Page</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Algerian;
+      background-image: url("Signup.jpg");
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .login-box {
+      background: rgba(255, 255, 255, 0.9);
+      padding: 30px;
+      border-radius: 12px;
+      width: 320px;
+      box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
+      text-align: center;
+    }
+
+    .login-box h2 {
+      margin-bottom: 20px;
+      color: #ff6600;
+    }
+
+    .login-box input {
+      width: 90%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    .login-box button {
+      width: 100%;
+      padding: 10px;
+      background: #ff6600;
+      color: white;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .login-box button:hover {
+      background: #e65c00;
+    }
+
+    .login-box a {
+      display: block;
+      margin-top: 15px;
+      font-size: 14px;
+      color: #333;
+      text-decoration: none;
+    }
+
+    .login-box a:hover {
+      text-decoration: underline;
+    }
+
+    #loginError {
+      color: red;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+
+    .toggle-pass {
+      position: absolute;
+      right: 40px;
+      margin-top: 15px;
+      cursor: pointer;
+      color: #ff6600;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-box">
+    <h2>Login</h2>
+    <form id="loginForm">
+      <input type="email" id="loginEmail" placeholder="E-mail" required><br>
+      <div style="position: relative;">
+        <input type="password" id="loginPassword" placeholder="Password" required>
+        <span class="toggle-pass" onclick="togglePassword()">👁️</span>
+      </div>
+      <button type="submit" id="loginButton">Login</button>
+      <a href="signup.html">Don't have an account? Sign up</a>
+      <p id="loginError"></p>
+    </form>
+  </div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+  <script>
+    // ✅ Correct Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyBbTQQ6ztZiYGjXSiwhKa700QxqFMRrD_Y",
+      authDomain: "codraz-3e717.firebaseapp.com",
+      projectId: "codraz-3e717",
+      storageBucket: "codraz-3e717.appspot.com", // ✅ fixed '.appspot.com'
+      messagingSenderId: "522391481845",
+      appId: "1:522391481845:web:7aa2219ecfc4949accc4bc",
+      measurementId: "G-XNBPG86LCN"
+    };
+
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // 🔑 Toggle Password Visibility
+    function togglePassword() {
+      const pass = document.getElementById("loginPassword");
+      pass.type = pass.type === "password" ? "text" : "password";
+    }
+
+    // 🧠 Handle Login
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+      const errorDisplay = document.getElementById('loginError');
+      const loginButton = document.getElementById('loginButton');
+
+      errorDisplay.textContent = '';
+      loginButton.textContent = "Logging in...";
+      loginButton.disabled = true;
+
+      try {
+        // Sign in with Firebase Auth
+        const userCredential = await auth.signInWithEmailAndPassword(email, password);
+        const user = userCredential.user;
+
+        // ✅ Fetch user name from Firestore
+        const doc = await db.collection('users').doc(user.uid).get();
+
+        if (doc.exists) {
+          const userData = doc.data();
+          // Save name to localStorage for Dashboard
+          localStorage.setItem('username', userData.name || 'User');
+        } else {
+          localStorage.setItem('username', 'User');
+        }
+
+        // Redirect to Dashboard
+        window.location.href = 'dashboard.html';
+      } catch (error) {
+        console.error("Login Error:", error);
+        errorDisplay.textContent = "Error: " + error.message;
+      } finally {
+        loginButton.textContent = "Login";
+        loginButton.disabled = false;
+      }
+    });
+
+    // 🚀 Auto Redirect if Already Logged In
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        window.location.href = "dashboard.html";
+      }
+    });
+  </script>
+</body>
+</html>
