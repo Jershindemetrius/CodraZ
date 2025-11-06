@@ -12,7 +12,7 @@
     }
 
     body {
-      font-family: Algerian;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       display: flex;
       justify-content: center;
@@ -92,6 +92,14 @@
       background-color: white;
       box-shadow: 0 0 0 3px rgba(255, 126, 95, 0.1);
       outline: none;
+    }
+
+    .input-with-icon input:invalid {
+      border-color: #ff4444;
+    }
+
+    .input-with-icon input:valid {
+      border-color: #00C851;
     }
 
     .input-icon {
@@ -245,6 +253,18 @@
       display: none;
     }
 
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
     @media (max-width: 480px) {
       .login-card {
         border-radius: 12px;
@@ -273,19 +293,19 @@
       <div class="card-body">
         <form id="loginForm">
           <div class="form-group">
-            <label for="loginEmail">Email Address</label>
+            <label for="loginEmail" class="sr-only">Email Address</label>
             <div class="input-with-icon">
               <span class="input-icon">✉️</span>
-              <input type="email" id="loginEmail" placeholder="Enter your email" required>
+              <input type="email" id="loginEmail" placeholder="Enter your email" required aria-describedby="email-help">
             </div>
           </div>
           
           <div class="form-group">
-            <label for="loginPassword">Password</label>
+            <label for="loginPassword" class="sr-only">Password</label>
             <div class="input-with-icon">
               <span class="input-icon">🔒</span>
               <input type="password" id="loginPassword" placeholder="Enter your password" required>
-              <button type="button" class="password-toggle" onclick="togglePassword()">👁️</button>
+              <button type="button" class="password-toggle" onclick="togglePassword()" aria-label="Toggle password visibility">👁️</button>
             </div>
           </div>
           
@@ -322,7 +342,7 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
   <script>
-    // Firebase configuration
+    // Enhanced Firebase configuration with better error handling
     const firebaseConfig = {
       apiKey: "AIzaSyBbTQQ6ztZiYGjXSiwhKa700QxqFMRrD_Y",
       authDomain: "codraz-3e717.firebaseapp.com",
@@ -333,18 +353,38 @@
       measurementId: "G-XNBPG86LCN"
     };
 
-    // Initialize Firebase
-    if (!firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig);
+    // Initialize Firebase with error handling
+    let auth, db;
+    
+    try {
+      // Check if Firebase scripts are loaded
+      if (typeof firebase === 'undefined') {
+        throw new Error('Firebase SDK not loaded. Check your internet connection.');
+      }
+      
+      // Initialize Firebase
+      if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+      } else {
+        firebase.app(); // if already initialized, use that one
+      }
+      
+      auth = firebase.auth();
+      db = firebase.firestore();
+      
+      console.log("Firebase initialized successfully");
+      
+    } catch (error) {
+      console.error("Firebase initialization error:", error);
+      showError("Failed to initialize authentication service. Please refresh the page.");
     }
 
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-
     // Ensure Firestore is online
-    db.enableNetwork()
-      .then(() => console.log("Firestore online"))
-      .catch(err => console.error("Network enable failed:", err));
+    if (db) {
+      db.enableNetwork()
+        .then(() => console.log("Firestore online"))
+        .catch(err => console.error("Network enable failed:", err));
+    }
 
     // Toggle password visibility
     function togglePassword() {
@@ -354,15 +394,81 @@
       if (passwordInput.type === 'password') {
         passwordInput.type = 'text';
         toggleButton.textContent = '🙈';
+        toggleButton.setAttribute('aria-label', 'Hide password');
       } else {
         passwordInput.type = 'password';
         toggleButton.textContent = '👁️';
+        toggleButton.setAttribute('aria-label', 'Show password');
+      }
+    }
+
+    // Enhanced email validation
+    function isValidEmail(email) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return emailRegex.test(email);
+    }
+
+    // Show error message
+    function showError(message) {
+      const errorDisplay = document.getElementById('loginError');
+      errorDisplay.textContent = message;
+      errorDisplay.style.display = 'block';
+      
+      // Hide success message if shown
+      document.getElementById('loginSuccess').style.display = 'none';
+    }
+
+    // Show success message
+    function showSuccess(message) {
+      const successDisplay = document.getElementById('loginSuccess');
+      successDisplay.textContent = message;
+      successDisplay.style.display = 'block';
+      
+      // Hide error message if shown
+      document.getElementById('loginError').style.display = 'none';
+    }
+
+    // Rate limiting for login attempts
+    const MAX_LOGIN_ATTEMPTS = 5;
+    let loginAttempts = 0;
+    let lastAttemptTime = 0;
+    const ATTEMPT_WINDOW = 15 * 60 * 1000; // 15 minutes
+
+    // User-friendly error messages
+    function getFriendlyErrorMessage(error) {
+      switch (error.code) {
+        case 'auth/user-not-found':
+          return "No account found with this email address.";
+        case 'auth/wrong-password':
+          return "Incorrect password. Please try again.";
+        case 'auth/invalid-email':
+          return "Invalid email address format.";
+        case 'auth/too-many-requests':
+          return "Too many failed attempts. Please try again later.";
+        case 'auth/network-request-failed':
+          return "Network error. Please check your internet connection.";
+        case 'auth/invalid-credential':
+          return "Invalid email or password.";
+        default:
+          return error.message || "An unexpected error occurred. Please try again.";
       }
     }
 
     // Handle login form submission
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
+
+      // Check if Firebase is initialized
+      if (!auth) {
+        showError("Authentication service not available. Please refresh the page.");
+        return;
+      }
+
+      // Check internet connection
+      if (!navigator.onLine) {
+        showError("You are offline. Please check your internet connection.");
+        return;
+      }
 
       const email = document.getElementById('loginEmail').value;
       const password = document.getElementById('loginPassword').value;
@@ -380,6 +486,24 @@
         return;
       }
 
+      // Validate email format
+      if (!isValidEmail(email)) {
+        showError("Please enter a valid email address");
+        return;
+      }
+
+      // Check rate limiting
+      const currentTime = Date.now();
+      if (currentTime - lastAttemptTime > ATTEMPT_WINDOW) {
+        // Reset attempts if outside the time window
+        loginAttempts = 0;
+      }
+
+      if (loginAttempts >= MAX_LOGIN_ATTEMPTS) {
+        showError("Too many failed login attempts. Please try again in 15 minutes.");
+        return;
+      }
+
       // Update button state
       loginButton.innerHTML = '<div class="spinner"></div><span>Signing in...</span>';
       loginButton.disabled = true;
@@ -390,19 +514,24 @@
         const user = userCredential.user;
 
         // Ensure Firestore network is ready
-        await db.enableNetwork();
+        if (db) {
+          await db.enableNetwork();
+        }
 
         // Fetch user data from Firestore
-        const doc = await db.collection('users').doc(user.uid).get();
-
-        if (doc.exists) {
-          const userData = doc.data();
-          localStorage.setItem('username', userData.name || 'User');
-          localStorage.setItem('userEmail', user.email);
-        } else {
-          localStorage.setItem('username', 'User');
-          localStorage.setItem('userEmail', user.email);
+        let userName = 'User';
+        if (db) {
+          const doc = await db.collection('users').doc(user.uid).get();
+          if (doc.exists) {
+            const userData = doc.data();
+            userName = userData.name || 'User';
+          }
         }
+
+        // Store user information
+        localStorage.setItem('username', userName);
+        localStorage.setItem('userEmail', user.email);
+        localStorage.setItem('userId', user.uid);
 
         // Store remember me preference
         const rememberMe = document.getElementById('rememberMe').checked;
@@ -414,6 +543,9 @@
           localStorage.removeItem('savedEmail');
         }
 
+        // Reset login attempts on successful login
+        loginAttempts = 0;
+
         // Show success message before redirect
         showSuccess('Login successful! Redirecting...');
         
@@ -424,23 +556,13 @@
 
       } catch (error) {
         console.error("Login Error:", error);
-        let errorMessage = "An error occurred during login.";
         
-        // User-friendly error messages
-        if (error.code === 'auth/user-not-found') {
-          errorMessage = "No account found with this email address.";
-        } else if (error.code === 'auth/wrong-password') {
-          errorMessage = "Incorrect password. Please try again.";
-        } else if (error.code === 'auth/invalid-email') {
-          errorMessage = "Invalid email address format.";
-        } else if (error.code === 'auth/too-many-requests') {
-          errorMessage = "Too many failed attempts. Please try again later.";
-        } else if (error.message.includes('offline')) {
-          errorMessage = "Network error. Please check your internet connection.";
-        } else {
-          errorMessage = error.message;
-        }
+        // Increment login attempts
+        loginAttempts++;
+        lastAttemptTime = Date.now();
         
+        // Show user-friendly error message
+        const errorMessage = getFriendlyErrorMessage(error);
         showError(errorMessage);
       } finally {
         // Reset button state
@@ -449,25 +571,30 @@
       }
     });
 
-    // Helper functions for showing messages
-    function showError(message) {
-      const errorDisplay = document.getElementById('loginError');
-      errorDisplay.textContent = message;
-      errorDisplay.style.display = 'block';
-    }
-
-    function showSuccess(message) {
-      const successDisplay = document.getElementById('loginSuccess');
-      successDisplay.textContent = message;
-      successDisplay.style.display = 'block';
-    }
-
     // Check if there's a saved email from remember me
     window.addEventListener('DOMContentLoaded', () => {
       const savedEmail = localStorage.getItem('savedEmail');
       if (savedEmail) {
         document.getElementById('loginEmail').value = savedEmail;
         document.getElementById('rememberMe').checked = true;
+      }
+    });
+
+    // Test Firebase connection on page load
+    window.addEventListener('load', () => {
+      if (auth) {
+        console.log("Testing Firebase connection...");
+        
+        // Simple test to check if Firebase is working
+        auth.onAuthStateChanged((user) => {
+          if (user) {
+            console.log("User is already signed in:", user.email);
+            // Optionally redirect if user is already signed in
+            // window.location.href = 'dashboard.html';
+          } else {
+            console.log("Firebase auth state listener working - no user signed in");
+          }
+        });
       }
     });
   </script>
