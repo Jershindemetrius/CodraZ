@@ -8,7 +8,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
@@ -37,13 +36,16 @@
     <main class="content">
       <div class="loading-overlay" id="loadingOverlay" aria-hidden="true">
         <div class="spinner"></div>
+        <p>Loading your dashboard...</p>
       </div>
 
       <header class="title-block">
         <h1 id="mainTitle">Dashboard</h1>
         <div class="user-info">
-          <span id="welcomeMessage"></span>
-          <div class="user-avatar" id="userAvatar"></div>
+          <span id="welcomeMessage">Loading...</span>
+          <div class="user-avatar" id="userAvatar">
+            <div class="avatar-initial">U</div>
+          </div>
           <div class="avatar-dropdown" id="avatarDropdown">
             <button id="profileBtn">Profile</button>
             <button id="logoutBtn">Logout</button>
@@ -381,6 +383,7 @@
     </div>
   </div>
 
+  <script src="firebase-config.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
