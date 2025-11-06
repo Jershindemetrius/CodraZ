@@ -342,7 +342,7 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
   <script>
-    // Enhanced Firebase configuration with better error handling
+    // Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyBbTQQ6ztZiYGjXSiwhKa700QxqFMRrD_Y",
       authDomain: "codraz-3e717.firebaseapp.com",
@@ -353,38 +353,20 @@
       measurementId: "G-XNBPG86LCN"
     };
 
-    // Initialize Firebase with error handling
-    let auth, db;
-    
-    try {
-      // Check if Firebase scripts are loaded
-      if (typeof firebase === 'undefined') {
-        throw new Error('Firebase SDK not loaded. Check your internet connection.');
-      }
-      
-      // Initialize Firebase
-      if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-      } else {
-        firebase.app(); // if already initialized, use that one
-      }
-      
-      auth = firebase.auth();
-      db = firebase.firestore();
-      
-      console.log("Firebase initialized successfully");
-      
-    } catch (error) {
-      console.error("Firebase initialization error:", error);
-      showError("Failed to initialize authentication service. Please refresh the page.");
+    // Initialize Firebase
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    } else {
+      firebase.app();
     }
 
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
     // Ensure Firestore is online
-    if (db) {
-      db.enableNetwork()
-        .then(() => console.log("Firestore online"))
-        .catch(err => console.error("Network enable failed:", err));
-    }
+    db.enableNetwork()
+      .then(() => console.log("Firestore online"))
+      .catch(err => console.error("Network enable failed:", err));
 
     // Toggle password visibility
     function togglePassword() {
@@ -413,8 +395,6 @@
       const errorDisplay = document.getElementById('loginError');
       errorDisplay.textContent = message;
       errorDisplay.style.display = 'block';
-      
-      // Hide success message if shown
       document.getElementById('loginSuccess').style.display = 'none';
     }
 
@@ -423,8 +403,6 @@
       const successDisplay = document.getElementById('loginSuccess');
       successDisplay.textContent = message;
       successDisplay.style.display = 'block';
-      
-      // Hide error message if shown
       document.getElementById('loginError').style.display = 'none';
     }
 
@@ -458,12 +436,6 @@
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      // Check if Firebase is initialized
-      if (!auth) {
-        showError("Authentication service not available. Please refresh the page.");
-        return;
-      }
-
       // Check internet connection
       if (!navigator.onLine) {
         showError("You are offline. Please check your internet connection.");
@@ -472,13 +444,11 @@
 
       const email = document.getElementById('loginEmail').value;
       const password = document.getElementById('loginPassword').value;
-      const errorDisplay = document.getElementById('loginError');
-      const successDisplay = document.getElementById('loginSuccess');
       const loginButton = document.getElementById('loginButton');
 
       // Clear previous messages
-      errorDisplay.style.display = 'none';
-      successDisplay.style.display = 'none';
+      document.getElementById('loginError').style.display = 'none';
+      document.getElementById('loginSuccess').style.display = 'none';
 
       // Validate inputs
       if (!email || !password) {
@@ -495,7 +465,6 @@
       // Check rate limiting
       const currentTime = Date.now();
       if (currentTime - lastAttemptTime > ATTEMPT_WINDOW) {
-        // Reset attempts if outside the time window
         loginAttempts = 0;
       }
 
@@ -514,18 +483,15 @@
         const user = userCredential.user;
 
         // Ensure Firestore network is ready
-        if (db) {
-          await db.enableNetwork();
-        }
+        await db.enableNetwork();
 
         // Fetch user data from Firestore
         let userName = 'User';
-        if (db) {
-          const doc = await db.collection('users').doc(user.uid).get();
-          if (doc.exists) {
-            const userData = doc.data();
-            userName = userData.name || 'User';
-          }
+        const doc = await db.collection('users').doc(user.uid).get();
+        
+        if (doc.exists) {
+          const userData = doc.data();
+          userName = userData.name || 'User';
         }
 
         // Store user information
@@ -582,20 +548,13 @@
 
     // Test Firebase connection on page load
     window.addEventListener('load', () => {
-      if (auth) {
-        console.log("Testing Firebase connection...");
-        
-        // Simple test to check if Firebase is working
-        auth.onAuthStateChanged((user) => {
-          if (user) {
-            console.log("User is already signed in:", user.email);
-            // Optionally redirect if user is already signed in
-            // window.location.href = 'dashboard.html';
-          } else {
-            console.log("Firebase auth state listener working - no user signed in");
-          }
-        });
-      }
+      auth.onAuthStateChanged((user) => {
+        if (user) {
+          console.log("User is already signed in:", user.email);
+        } else {
+          console.log("No user signed in");
+        }
+      });
     });
   </script>
 </body>
