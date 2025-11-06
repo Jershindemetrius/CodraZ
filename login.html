@@ -253,6 +253,17 @@
       display: none;
     }
 
+    .warning-message {
+      background-color: rgba(255, 193, 7, 0.1);
+      color: #ff9800;
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 15px;
+      font-size: 14px;
+      text-align: center;
+      display: none;
+    }
+
     .sr-only {
       position: absolute;
       width: 1px;
@@ -323,6 +334,7 @@
           
           <div class="error-message" id="loginError"></div>
           <div class="success-message" id="loginSuccess"></div>
+          <div class="warning-message" id="loginWarning"></div>
           
           <div class="divider">
             <span>New to our platform?</span>
@@ -363,10 +375,19 @@
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    // Ensure Firestore is online
-    db.enableNetwork()
-      .then(() => console.log("Firestore online"))
-      .catch(err => console.error("Network enable failed:", err));
+    // Enable Firestore offline persistence with better error handling
+    db.enablePersistence()
+      .then(() => {
+        console.log("Firestore offline persistence enabled");
+      })
+      .catch((err) => {
+        console.warn("Firestore persistence failed:", err);
+        if (err.code === 'failed-precondition') {
+          console.log("Multiple tabs open, persistence can only be enabled in one tab at a time.");
+        } else if (err.code === 'unimplemented') {
+          console.log("The current browser doesn't support all of the features required to enable persistence");
+        }
+      });
 
     // Toggle password visibility
     function togglePassword() {
@@ -396,6 +417,7 @@
       errorDisplay.textContent = message;
       errorDisplay.style.display = 'block';
       document.getElementById('loginSuccess').style.display = 'none';
+      document.getElementById('loginWarning').style.display = 'none';
     }
 
     // Show success message
@@ -404,6 +426,16 @@
       successDisplay.textContent = message;
       successDisplay.style.display = 'block';
       document.getElementById('loginError').style.display = 'none';
+      document.getElementById('loginWarning').style.display = 'none';
+    }
+
+    // Show warning message
+    function showWarning(message) {
+      const warningDisplay = document.getElementById('loginWarning');
+      warningDisplay.textContent = message;
+      warningDisplay.style.display = 'block';
+      document.getElementById('loginError').style.display = 'none';
+      document.getElementById('loginSuccess').style.display = 'none';
     }
 
     // Rate limiting for login attempts
@@ -427,8 +459,24 @@
           return "Network error. Please check your internet connection.";
         case 'auth/invalid-credential':
           return "Invalid email or password.";
+        case 'unavailable':
+          return "Firebase service is temporarily unavailable. Please try again.";
         default:
           return error.message || "An unexpected error occurred. Please try again.";
+      }
+    }
+
+    // Test Firestore connection
+    async function testFirestoreConnection() {
+      try {
+        // Try a simple operation to test connectivity
+        await db.collection('test').doc('connection-test').get({
+          source: 'server'
+        });
+        return true;
+      } catch (error) {
+        console.warn("Firestore connection test failed:", error);
+        return false;
       }
     }
 
@@ -449,6 +497,7 @@
       // Clear previous messages
       document.getElementById('loginError').style.display = 'none';
       document.getElementById('loginSuccess').style.display = 'none';
+      document.getElementById('loginWarning').style.display = 'none';
 
       // Validate inputs
       if (!email || !password) {
@@ -478,20 +527,42 @@
       loginButton.disabled = true;
 
       try {
+        // Test Firestore connection first
+        const isFirestoreOnline = await testFirestoreConnection();
+        
+        if (!isFirestoreOnline) {
+          showWarning("⚠️ Limited connectivity. Some features may not work properly.");
+        }
+
         // Sign in with Firebase Auth
         const userCredential = await auth.signInWithEmailAndPassword(email, password);
         const user = userCredential.user;
 
-        // Ensure Firestore network is ready
-        await db.enableNetwork();
-
-        // Fetch user data from Firestore
+        // Try to fetch user data from Firestore with offline handling
         let userName = 'User';
-        const doc = await db.collection('users').doc(user.uid).get();
-        
-        if (doc.exists) {
-          const userData = doc.data();
-          userName = userData.name || 'User';
+        try {
+          // Use cache-first strategy to avoid offline errors
+          const doc = await db.collection('users').doc(user.uid).get({ source: 'cache' });
+          
+          if (doc.exists) {
+            const userData = doc.data();
+            userName = userData.name || 'User';
+          } else {
+            // If not in cache, try server but don't fail if offline
+            try {
+              const serverDoc = await db.collection('users').doc(user.uid).get({ source: 'server' });
+              if (serverDoc.exists) {
+                const userData = serverDoc.data();
+                userName = userData.name || 'User';
+              }
+            } catch (serverError) {
+              console.warn("Could not fetch user data from server, using default:", serverError);
+              // Continue with default username
+            }
+          }
+        } catch (firestoreError) {
+          console.warn("Firestore error, but login successful:", firestoreError);
+          // Continue with default username
         }
 
         // Store user information
