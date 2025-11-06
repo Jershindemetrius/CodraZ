@@ -8,6 +8,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
   <div class="app">
@@ -21,6 +25,7 @@
         <button class="nav-item" data-nav="assistant">🤖 <span>AI Assistant</span></button>
         <button class="nav-item" data-nav="schedule">🗓 <span>Schedule</span></button>
         <button class="nav-item" data-nav="wellness">💚 <span>Wellness</span></button>
+        <button class="nav-item" data-nav="profile">👤 <span>Profile</span></button>
         <button class="nav-item" data-nav="settings">⚙️ <span>Settings</span></button>
       </nav>
       <div class="sidebar-footer">
@@ -192,6 +197,115 @@
           <div class="content-block wellness-feature">
             <h3>💡 Wellness Tip</h3>
             <p id="wellnessTipText" class="wellness-tip">Remember to stand up and stretch every 30-60 minutes to keep your blood flowing!</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="profileSection" data-view="profile" hidden>
+        <div class="content-block">
+          <h2>👤 User Profile</h2>
+          <div class="profile-header">
+            <div class="profile-avatar-large" id="profileAvatarLarge">
+              <!-- Dynamic avatar will be inserted here -->
+            </div>
+            <div class="profile-info">
+              <h3 id="profileUserName">User Name</h3>
+              <p id="profileUserEmail">user@example.com</p>
+              <p class="profile-join-date">Member since <span id="profileJoinDate">January 2024</span></p>
+            </div>
+          </div>
+
+          <div class="profile-content">
+            <div class="profile-stats-grid">
+              <div class="stat-card">
+                <div class="stat-number" id="statTotalTasks">0</div>
+                <div class="stat-label">Total Tasks</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number" id="statCompletedTasks">0</div>
+                <div class="stat-label">Completed</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number" id="statCurrentStreak">0</div>
+                <div class="stat-label">Day Streak</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number" id="statQuizzesTaken">0</div>
+                <div class="stat-label">Quizzes Taken</div>
+              </div>
+            </div>
+
+            <div class="profile-details-grid">
+              <div class="profile-section">
+                <h3>Personal Information</h3>
+                <form id="profileForm" class="profile-form">
+                  <div class="form-group">
+                    <label for="profileUsername">Username</label>
+                    <input type="text" id="profileUsername" class="form-input" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="profileEmail">Email</label>
+                    <input type="email" id="profileEmail" class="form-input">
+                  </div>
+                  <div class="form-group">
+                    <label for="profileStudyFocus">Primary Study Focus</label>
+                    <input type="text" id="profileStudyFocus" class="form-input" list="focusSuggestions">
+                    <datalist id="focusSuggestions">
+                      <option value="Computer Science">
+                      <option value="Mathematics">
+                      <option value="Physics">
+                      <option value="Biology">
+                      <option value="Chemistry">
+                      <option value="Engineering">
+                      <option value="Business">
+                      <option value="Medicine">
+                      <option value="Law">
+                      <option value="Arts">
+                    </datalist>
+                  </div>
+                  <div class="form-group">
+                    <label for="profileBio">Bio</label>
+                    <textarea id="profileBio" class="form-input" rows="3" placeholder="Tell us about your learning goals..."></textarea>
+                  </div>
+                  <button type="submit" class="btn" id="saveProfileBtn">Save Changes</button>
+                </form>
+              </div>
+
+              <div class="profile-section">
+                <h3>Avatar Customization</h3>
+                <div class="avatar-customization-preview">
+                  <div id="currentAvatarDisplay" class="avatar-display-large">
+                    <!-- Current avatar preview -->
+                  </div>
+                  <div class="avatar-options-grid">
+                    <button class="avatar-style-option" data-style="initial">
+                      <div class="avatar-style-preview">
+                        <div class="avatar-initial">U</div>
+                      </div>
+                      <span>Initial</span>
+                    </button>
+                    <button class="avatar-style-option" data-style="gradient">
+                      <div class="avatar-style-preview">
+                        <div class="avatar-gradient" style="background: linear-gradient(135deg, #FF6B6B, #4ECDC4)">U</div>
+                      </div>
+                      <span>Gradient</span>
+                    </button>
+                    <button class="avatar-style-option" data-style="icon">
+                      <div class="avatar-style-preview">
+                        <i class="fas fa-user-graduate avatar-icon"></i>
+                      </div>
+                      <span>Icon</span>
+                    </button>
+                    <button class="avatar-style-option" data-style="pattern">
+                      <div class="avatar-style-preview">
+                        <div class="avatar-pattern avatar-pattern-1">U</div>
+                      </div>
+                      <span>Pattern</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
