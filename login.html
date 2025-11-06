@@ -1,121 +1,475 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login Page</title>
+  <title>Login | Secure Access</title>
   <style>
-    body {
+    * {
       margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
       font-family: Algerian;
-      background-image: url("Signup.jpg"); /* Assuming Signup.jpg is your background image */
-      background-size: cover;
-      background-position: center;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      min-height: 100vh;
+      padding: 20px;
     }
 
-    .login-box {
-      background: rgba(255, 255, 255, 0.9);
-      padding: 30px;
-      border-radius: 12px;
-      width: 300px;
-      box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
+    .login-container {
+      width: 100%;
+      max-width: 420px;
+    }
+
+    .login-card {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      overflow: hidden;
+      transition: transform 0.3s ease;
+    }
+
+    .login-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .card-header {
+      background: linear-gradient(135deg, #ff7e5f, #feb47b);
+      color: white;
+      padding: 30px 20px;
       text-align: center;
     }
 
-    .login-box h2 {
-      margin-bottom: 20px;
-      color: #ff6600;
+    .card-header h1 {
+      font-size: 28px;
+      margin-bottom: 8px;
+      font-weight: 600;
     }
 
-    .login-box input {
-      width: 90%;
-      padding: 10px;
-      margin: 10px 0;
-      border: 1px solid #ccc;
-      border-radius: 6px;
+    .card-header p {
+      opacity: 0.9;
+      font-size: 15px;
+    }
+
+    .card-body {
+      padding: 30px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: #333;
       font-size: 14px;
     }
 
-    .login-box button {
+    .input-with-icon {
+      position: relative;
+    }
+
+    .input-with-icon input {
       width: 100%;
-      padding: 10px;
-      background: #ff6600;
-      color: white;
-      font-size: 16px;
+      padding: 14px 14px 14px 45px;
+      border: 1.5px solid #e1e5e9;
+      border-radius: 10px;
+      font-size: 15px;
+      transition: all 0.3s;
+      background-color: #f8f9fa;
+    }
+
+    .input-with-icon input:focus {
+      border-color: #ff7e5f;
+      background-color: white;
+      box-shadow: 0 0 0 3px rgba(255, 126, 95, 0.1);
+      outline: none;
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #9aa1a9;
+      font-size: 18px;
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
       border: none;
-      border-radius: 6px;
+      color: #9aa1a9;
       cursor: pointer;
+      font-size: 18px;
     }
 
-    .login-box button:hover {
-      background: #e65c00;
+    .options {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+      font-size: 14px;
     }
 
-    .login-box a {
-      display: block;
+    .remember-me {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .remember-me input {
+      accent-color: #ff7e5f;
+    }
+
+    .forgot-password {
+      color: #ff7e5f;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .forgot-password:hover {
+      text-decoration: underline;
+    }
+
+    .login-button {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #ff7e5f, #feb47b);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .login-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(255, 126, 95, 0.4);
+    }
+
+    .login-button:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      margin: 25px 0;
+      color: #9aa1a9;
+      font-size: 14px;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: "";
+      flex: 1;
+      border-bottom: 1px solid #e1e5e9;
+    }
+
+    .divider span {
+      padding: 0 15px;
+    }
+
+    .signup-link {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 14px;
+      color: #555;
+    }
+
+    .signup-link a {
+      color: #ff7e5f;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .signup-link a:hover {
+      text-decoration: underline;
+    }
+
+    .error-message {
+      background-color: rgba(255, 68, 68, 0.1);
+      color: #d63031;
+      padding: 12px;
+      border-radius: 8px;
       margin-top: 15px;
       font-size: 14px;
-      color: #333;
-      text-decoration: none;
+      text-align: center;
+      display: none;
     }
-    .login-box a:hover {
-      text-decoration: underline;
+
+    .success-message {
+      background-color: rgba(46, 204, 113, 0.1);
+      color: #27ae60;
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 15px;
+      font-size: 14px;
+      text-align: center;
+      display: none;
+    }
+
+    @media (max-width: 480px) {
+      .login-card {
+        border-radius: 12px;
+      }
+      
+      .card-body {
+        padding: 25px 20px;
+      }
+      
+      .options {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="login-box">
-    <h2>Login</h2>
-    <form id="loginForm"> <!-- Add an ID to the form -->
-      <input type="email" id="loginEmail" placeholder="E-mail" required><br>
-      <input type="password" id="loginPassword" placeholder="Password" required><br>
-      <button type="submit">Login</button>
-      <a href='/signup'>Don't have an account? Sign up</a>
-      <p id="loginError" style="color: red;"></p>
-    </form>
+  <div class="login-container">
+    <div class="login-card">
+      <div class="card-header">
+        <h1>Welcome Back</h1>
+        <p>Sign in to your account to continue</p>
+      </div>
+      
+      <div class="card-body">
+        <form id="loginForm">
+          <div class="form-group">
+            <label for="loginEmail">Email Address</label>
+            <div class="input-with-icon">
+              <span class="input-icon">✉️</span>
+              <input type="email" id="loginEmail" placeholder="Enter your email" required>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="loginPassword">Password</label>
+            <div class="input-with-icon">
+              <span class="input-icon">🔒</span>
+              <input type="password" id="loginPassword" placeholder="Enter your password" required>
+              <button type="button" class="password-toggle" onclick="togglePassword()">👁️</button>
+            </div>
+          </div>
+          
+          <div class="options">
+            <div class="remember-me">
+              <input type="checkbox" id="rememberMe">
+              <label for="rememberMe">Remember me</label>
+            </div>
+            <a href="#" class="forgot-password">Forgot password?</a>
+          </div>
+          
+          <button type="submit" class="login-button" id="loginButton">
+            <span>Sign In</span>
+          </button>
+          
+          <div class="error-message" id="loginError"></div>
+          <div class="success-message" id="loginSuccess"></div>
+          
+          <div class="divider">
+            <span>New to our platform?</span>
+          </div>
+          
+          <div class="signup-link">
+            Don't have an account? <a href="signup.html">Create an account</a>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
 
-  <!-- Firebase SDKs and Init -->
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-  <script>
-    // IMPORTANT: Replace with your actual Firebase config
-    const firebaseConfig = {
-  apiKey: "AIzaSyBbTQQ6ztZiYGjXSiwhKa700QxqFMRrD_Y",
-  authDomain: "codraz-3e717.firebaseapp.com",
-  projectId: "codraz-3e717",
-  storageBucket: "codraz-3e717.firebasestorage.app",
-  messagingSenderId: "522391481845",
-  appId: "1:522391481845:web:7aa2219ecfc4949accc4bc",
-  measurementId: "G-XNBPG86LCN"
-};
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
+  <script>
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyBbTQQ6ztZiYGjXSiwhKa700QxqFMRrD_Y",
+      authDomain: "codraz-3e717.firebaseapp.com",
+      projectId: "codraz-3e717",
+      storageBucket: "codraz-3e717.firebasestorage.app",
+      messagingSenderId: "522391481845",
+      appId: "1:522391481845:web:7aa2219ecfc4949accc4bc",
+      measurementId: "G-XNBPG86LCN"
+    };
+
+    // Initialize Firebase
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // Ensure Firestore is online
+    db.enableNetwork()
+      .then(() => console.log("Firestore online"))
+      .catch(err => console.error("Network enable failed:", err));
+
+    // Toggle password visibility
+    function togglePassword() {
+      const passwordInput = document.getElementById('loginPassword');
+      const toggleButton = document.querySelector('.password-toggle');
+      
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleButton.textContent = '🙈';
+      } else {
+        passwordInput.type = 'password';
+        toggleButton.textContent = '👁️';
+      }
+    }
+
+    // Handle login form submission
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
-      e.preventDefault(); // Prevent default form submission
+      e.preventDefault();
 
       const email = document.getElementById('loginEmail').value;
       const password = document.getElementById('loginPassword').value;
       const errorDisplay = document.getElementById('loginError');
-      errorDisplay.textContent = ''; // Clear previous errors
+      const successDisplay = document.getElementById('loginSuccess');
+      const loginButton = document.getElementById('loginButton');
+
+      // Clear previous messages
+      errorDisplay.style.display = 'none';
+      successDisplay.style.display = 'none';
+
+      // Validate inputs
+      if (!email || !password) {
+        showError('Please fill in all fields');
+        return;
+      }
+
+      // Update button state
+      loginButton.innerHTML = '<div class="spinner"></div><span>Signing in...</span>';
+      loginButton.disabled = true;
 
       try {
-        await auth.signInWithEmailAndPassword(email, password);
-        // If login is successful, redirect to your main page (index.html)
-        window.location.href = 'dashboard.html'; 
+        // Sign in with Firebase Auth
+        const userCredential = await auth.signInWithEmailAndPassword(email, password);
+        const user = userCredential.user;
+
+        // Ensure Firestore network is ready
+        await db.enableNetwork();
+
+        // Fetch user data from Firestore
+        const doc = await db.collection('users').doc(user.uid).get();
+
+        if (doc.exists) {
+          const userData = doc.data();
+          localStorage.setItem('username', userData.name || 'User');
+          localStorage.setItem('userEmail', user.email);
+        } else {
+          localStorage.setItem('username', 'User');
+          localStorage.setItem('userEmail', user.email);
+        }
+
+        // Store remember me preference
+        const rememberMe = document.getElementById('rememberMe').checked;
+        if (rememberMe) {
+          localStorage.setItem('rememberMe', 'true');
+          localStorage.setItem('savedEmail', email);
+        } else {
+          localStorage.removeItem('rememberMe');
+          localStorage.removeItem('savedEmail');
+        }
+
+        // Show success message before redirect
+        showSuccess('Login successful! Redirecting...');
+        
+        // Redirect after a brief delay
+        setTimeout(() => {
+          window.location.href = 'dashboard.html';
+        }, 1500);
+
       } catch (error) {
-        console.error("Error logging in:", error);
-        errorDisplay.textContent = "Error: " + error.message;
+        console.error("Login Error:", error);
+        let errorMessage = "An error occurred during login.";
+        
+        // User-friendly error messages
+        if (error.code === 'auth/user-not-found') {
+          errorMessage = "No account found with this email address.";
+        } else if (error.code === 'auth/wrong-password') {
+          errorMessage = "Incorrect password. Please try again.";
+        } else if (error.code === 'auth/invalid-email') {
+          errorMessage = "Invalid email address format.";
+        } else if (error.code === 'auth/too-many-requests') {
+          errorMessage = "Too many failed attempts. Please try again later.";
+        } else if (error.message.includes('offline')) {
+          errorMessage = "Network error. Please check your internet connection.";
+        } else {
+          errorMessage = error.message;
+        }
+        
+        showError(errorMessage);
+      } finally {
+        // Reset button state
+        loginButton.innerHTML = '<span>Sign In</span>';
+        loginButton.disabled = false;
+      }
+    });
+
+    // Helper functions for showing messages
+    function showError(message) {
+      const errorDisplay = document.getElementById('loginError');
+      errorDisplay.textContent = message;
+      errorDisplay.style.display = 'block';
+    }
+
+    function showSuccess(message) {
+      const successDisplay = document.getElementById('loginSuccess');
+      successDisplay.textContent = message;
+      successDisplay.style.display = 'block';
+    }
+
+    // Check if there's a saved email from remember me
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedEmail = localStorage.getItem('savedEmail');
+      if (savedEmail) {
+        document.getElementById('loginEmail').value = savedEmail;
+        document.getElementById('rememberMe').checked = true;
       }
     });
   </script>
-  
 </body>
-
 </html>
