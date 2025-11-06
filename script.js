@@ -23,7 +23,6 @@
   const focusSubject = qs('#focusSubject');
   const focusDescription = qs('#focusDescription');
   const focusProgressPct = qs('#focusProgressPct');
-  // FIX: select the element that actually exists in HTML (#focusProgressBar is the inner div)
   const focusProgressBar = qs('#focusProgressBar');
   const focusTasks = qs('#focusTasks');
   const focusScore = qs('#focusScore');
@@ -655,7 +654,7 @@
   function stopBreathingAnimation() { clearInterval(breathIntervalId); if (breathingCircle) breathingCircle.style.animation = 'none'; }
 
   // Toasts / confirm / utils
-  function showToast(message, type = 'success', duration = 3500) { if (!toastContainer) return null; const id = uid('toast'); const t = document.createElement('div'); t.className = `toast-message toast-${type}`; t.dataset.toastId = id; let i=''; switch(type){ case 'success': i='✅'; break; case 'error': i='❌'; break; case 'warning': i='⚠️'; break; case 'info': i='ℹ️'; break; } t.innerHTML = `<span class="toast-icon">${i}</span> <span>${escapeHtml(message)}</span>`; toastContainer.prepend(t); requestAnimationFrame(()=>t.classList.add('show')); if (duration > 0) setTimeout(()=>dismissToast(id), duration); return id; }
+  function showToast(message, type = 'success', duration = 3500) { if (!toastContainer) return null; const id = uid('toast'); const t = document.createElement('div'); t.className = `toast ${type}`; t.dataset.toastId = id; let i=''; switch(type){ case 'success': i='✅'; break; case 'error': i='❌'; break; case 'warning': i='⚠️'; break; case 'info': i='ℹ️'; break; } t.innerHTML = `<span class="toast-icon">${i}</span> <span>${escapeHtml(message)}</span>`; toastContainer.prepend(t); requestAnimationFrame(()=>t.classList.add('show')); if (duration > 0) setTimeout(()=>dismissToast(id), duration); return id; }
   function dismissToast(id) { if (!toastContainer) return; const t = qs(`[data-toast-id="${id}"]`, toastContainer); if (t) { t.classList.remove('show'); t.addEventListener('transitionend', ()=>t.remove(), { once: true }); } }
 
   function showConfirmModal(title, message, onConfirm) { if (!confirmModal || !confirmTitle || !confirmMessage) return; confirmTitle.textContent = title; confirmMessage.textContent = message; confirmCallback = onConfirm; confirmModal.setAttribute('aria-hidden', 'false'); confirmModal.style.display = 'flex'; confirmYesBtn?.focus(); }
@@ -676,10 +675,12 @@
     return d.toLocaleDateString(undefined, { month:'short', day:'numeric' });
   }
 
-  // === Dynamic User Greeting and Avatar ===
+  // === Enhanced Dynamic User Greeting and Avatar System ===
   function setDynamicUserUI() {
     const username = localStorage.getItem('username') || 'User';
+    const email = localStorage.getItem('email') || '';
     const hour = new Date().getHours();
+    
     let greeting = "Hello";
     if (hour < 12) greeting = "Good Morning";
     else if (hour < 18) greeting = "Good Afternoon";
@@ -689,9 +690,11 @@
     const welcomeEl = document.getElementById('welcomeMessage');
     if (welcomeEl) welcomeEl.textContent = `${greeting}, ${username}!`;
 
-    // Avatar first letter
+    // Generate dynamic avatar based on user credentials
     const avatarEl = document.getElementById('userAvatar');
-    if (avatarEl) avatarEl.textContent = username.charAt(0).toUpperCase();
+    if (avatarEl) {
+      avatarEl.innerHTML = generateDynamicAvatar(username, email);
+    }
 
     // Dropdown toggle
     const dropdown = document.getElementById('avatarDropdown');
@@ -710,17 +713,273 @@
     if (logoutBtn) {
       logoutBtn.addEventListener('click', () => {
         localStorage.removeItem('username');
+        localStorage.removeItem('email');
+        localStorage.removeItem('userAvatarType');
         window.location.href = 'index.html';
       });
     }
 
-    // Profile button placeholder
+    // Profile button
     const profileBtn = document.getElementById('profileBtn');
     if (profileBtn) {
       profileBtn.addEventListener('click', () => {
-        showToast("Profile section coming soon!", 'info');
+        showProfileModal(username, email);
       });
     }
+  }
+
+  // Generate dynamic avatar based on user credentials
+  function generateDynamicAvatar(username, email) {
+    // Check if user has a preferred avatar type saved
+    const savedAvatarType = localStorage.getItem('userAvatarType');
+    
+    if (savedAvatarType) {
+      return createAvatarByType(username, email, savedAvatarType);
+    }
+    
+    // Determine avatar type based on email domain or username characteristics
+    let avatarType = 'initial'; // default
+    
+    if (email) {
+      if (email.includes('student') || email.includes('edu')) {
+        avatarType = 'student';
+      } else if (email.includes('teacher') || email.includes('prof')) {
+        avatarType = 'teacher';
+      } else if (email.includes('admin')) {
+        avatarType = 'admin';
+      } else {
+        // Use hash of email to consistently assign an avatar type
+        const emailHash = simpleHash(email);
+        const types = ['initial', 'gradient', 'icon', 'pattern'];
+        avatarType = types[emailHash % types.length];
+      }
+    } else {
+      // Use username to determine avatar type
+      const usernameHash = simpleHash(username);
+      const types = ['initial', 'gradient', 'icon', 'pattern'];
+      avatarType = types[usernameHash % types.length];
+    }
+    
+    // Save the avatar type for consistency
+    localStorage.setItem('userAvatarType', avatarType);
+    
+    return createAvatarByType(username, email, avatarType);
+  }
+
+  // Create avatar based on type
+  function createAvatarByType(username, email, type) {
+    const firstLetter = username.charAt(0).toUpperCase();
+    
+    switch(type) {
+      case 'gradient':
+        const gradientColors = [
+          ['#FF6B6B', '#4ECDC4'], // Coral to Teal
+          ['#45B7D1', '#96C93D'], // Blue to Green
+          ['#FFA62E', '#EA4C89'], // Orange to Pink
+          ['#654EA3', '#EAAFC8'], // Purple to Pink
+          ['#2C3E50', '#3498DB']  // Dark Blue to Blue
+        ];
+        const gradientIndex = simpleHash(username + email) % gradientColors.length;
+        const [color1, color2] = gradientColors[gradientIndex];
+        
+        return `
+          <div class="avatar-gradient" style="background: linear-gradient(135deg, ${color1}, ${color2})">
+            ${firstLetter}
+          </div>
+        `;
+        
+      case 'icon':
+        const icons = ['user-graduate', 'user-tie', 'user-ninja', 'user-astronaut', 'user-secret'];
+        const iconIndex = simpleHash(username + email) % icons.length;
+        const iconClass = icons[iconIndex];
+        
+        return `<i class="fas fa-${iconClass} avatar-icon"></i>`;
+        
+      case 'pattern':
+        const patterns = [
+          'avatar-pattern-1', 'avatar-pattern-2', 'avatar-pattern-3', 
+          'avatar-pattern-4', 'avatar-pattern-5'
+        ];
+        const patternIndex = simpleHash(username + email) % patterns.length;
+        
+        return `
+          <div class="avatar-pattern ${patterns[patternIndex]}">
+            ${firstLetter}
+          </div>
+        `;
+        
+      case 'student':
+        return `<i class="fas fa-user-graduate avatar-icon student-avatar"></i>`;
+        
+      case 'teacher':
+        return `<i class="fas fa-user-tie avatar-icon teacher-avatar"></i>`;
+        
+      case 'admin':
+        return `<i class="fas fa-user-cog avatar-icon admin-avatar"></i>`;
+        
+      default: // 'initial'
+        return `
+          <div class="avatar-initial">
+            ${firstLetter}
+          </div>
+        `;
+    }
+  }
+
+  // Simple hash function for consistent results
+  function simpleHash(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32-bit integer
+    }
+    return Math.abs(hash);
+  }
+
+  // Show profile modal with avatar customization
+  function showProfileModal(username, email) {
+    const modalHtml = `
+      <div class="modal-overlay" id="profileModal" aria-hidden="false">
+        <div class="modal-content">
+          <button class="close-modal-btn" id="closeProfileModal" title="Close Profile">&times;</button>
+          <h2>Your Profile</h2>
+          
+          <div class="profile-avatar-section">
+            <h3>Current Avatar</h3>
+            <div id="currentAvatarPreview" class="avatar-preview-large">
+              ${generateDynamicAvatar(username, email)}
+            </div>
+          </div>
+          
+          <div class="profile-details">
+            <div class="profile-field">
+              <label>Username:</label>
+              <span>${username}</span>
+            </div>
+            <div class="profile-field">
+              <label>Email:</label>
+              <span>${email || 'Not provided'}</span>
+            </div>
+          </div>
+          
+          <div class="avatar-customization">
+            <h3>Change Avatar Style</h3>
+            <div class="avatar-options">
+              <button class="avatar-option-btn" data-type="initial">
+                <div class="avatar-option-preview">
+                  ${createAvatarByType(username, email, 'initial')}
+                </div>
+                <span>Initial</span>
+              </button>
+              
+              <button class="avatar-option-btn" data-type="gradient">
+                <div class="avatar-option-preview">
+                  ${createAvatarByType(username, email, 'gradient')}
+                </div>
+                <span>Gradient</span>
+              </button>
+              
+              <button class="avatar-option-btn" data-type="icon">
+                <div class="avatar-option-preview">
+                  ${createAvatarByType(username, email, 'icon')}
+                </div>
+                <span>Icon</span>
+              </button>
+              
+              <button class="avatar-option-btn" data-type="pattern">
+                <div class="avatar-option-preview">
+                  ${createAvatarByType(username, email, 'pattern')}
+                </div>
+                <span>Pattern</span>
+              </button>
+            </div>
+          </div>
+          
+          <div class="profile-actions">
+            <button id="saveProfileBtn" class="btn">Save Changes</button>
+            <button id="closeProfileBtn" class="btn outline">Close</button>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    // Remove existing profile modal if any
+    const existingModal = document.getElementById('profileModal');
+    if (existingModal) {
+      existingModal.remove();
+    }
+    
+    // Add new modal to body
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    
+    // Set up event listeners for the modal
+    const profileModal = document.getElementById('profileModal');
+    const closeProfileModal = document.getElementById('closeProfileModal');
+    const closeProfileBtn = document.getElementById('closeProfileBtn');
+    const saveProfileBtn = document.getElementById('saveProfileBtn');
+    const avatarOptionBtns = document.querySelectorAll('.avatar-option-btn');
+    
+    let selectedAvatarType = localStorage.getItem('userAvatarType') || 'initial';
+    
+    // Highlight currently selected avatar type
+    avatarOptionBtns.forEach(btn => {
+      if (btn.dataset.type === selectedAvatarType) {
+        btn.classList.add('selected');
+      }
+      
+      btn.addEventListener('click', () => {
+        // Remove selection from all buttons
+        avatarOptionBtns.forEach(b => b.classList.remove('selected'));
+        // Add selection to clicked button
+        btn.classList.add('selected');
+        selectedAvatarType = btn.dataset.type;
+        
+        // Update preview
+        const preview = document.getElementById('currentAvatarPreview');
+        preview.innerHTML = createAvatarByType(username, email, selectedAvatarType);
+      });
+    });
+    
+    // Close modal functions
+    const closeModal = () => {
+      profileModal.setAttribute('aria-hidden', 'true');
+      profileModal.style.display = 'none';
+      setTimeout(() => {
+        profileModal.remove();
+      }, 300);
+    };
+    
+    closeProfileModal.addEventListener('click', closeModal);
+    closeProfileBtn.addEventListener('click', closeModal);
+    profileModal.addEventListener('click', (e) => {
+      if (e.target === profileModal) closeModal();
+    });
+    
+    // Save profile changes
+    saveProfileBtn.addEventListener('click', () => {
+      localStorage.setItem('userAvatarType', selectedAvatarType);
+      
+      // Update the main avatar
+      const avatarEl = document.getElementById('userAvatar');
+      if (avatarEl) {
+        avatarEl.innerHTML = createAvatarByType(
+          localStorage.getItem('username') || 'User',
+          localStorage.getItem('email') || '',
+          selectedAvatarType
+        );
+      }
+      
+      showToast("Avatar updated successfully!", 'success');
+      closeModal();
+    });
+    
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && profileModal.getAttribute('aria-hidden') === 'false') {
+        closeModal();
+      }
+    });
   }
 
   // Settings helpers (applyDark et al.)
