@@ -1,6 +1,8 @@
+// Main application script for EduFlow Pro
 (() => {
   'use strict';
-  const STORAGE_KEY = 'EduFlow Pro_state_v1';
+  
+  const STORAGE_KEY = 'EduFlow_Pro_state_v1';
   let notifiedTaskIds = [];
   let currentSort = { field: 'date', ascending: true };
   let confirmCallback = null;
@@ -9,10 +11,27 @@
   let wellnessTipIntervalId = null;
   let loadingToastId = null;
 
-  function uid(prefix = 'id') { return prefix + '_' + Math.random().toString(36).slice(2, 9) + Date.now().toString(36); }
-  function qs(sel, root = document) { return root.querySelector(sel); }
-  function qsa(sel, root = document) { return Array.from(root.querySelectorAll(sel)); }
-  function escapeHtml(unsafe) { if (typeof unsafe !== 'string') return ''; return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); }
+  // Utility functions
+  function uid(prefix = 'id') { 
+    return prefix + '_' + Math.random().toString(36).slice(2, 9) + Date.now().toString(36); 
+  }
+  
+  function qs(sel, root = document) { 
+    return root.querySelector(sel); 
+  }
+  
+  function qsa(sel, root = document) { 
+    return Array.from(root.querySelectorAll(sel)); 
+  }
+  
+  function escapeHtml(unsafe) { 
+    if (typeof unsafe !== 'string') return ''; 
+    return unsafe.replace(/&/g, "&amp;")
+                 .replace(/</g, "&lt;")
+                 .replace(/>/g, "&gt;")
+                 .replace(/"/g, "&quot;")
+                 .replace(/'/g, "&#039;"); 
+  }
 
   // DOM cache
   const mainTitleEl = qs('#mainTitle');
@@ -135,6 +154,7 @@
       avatarStyle: 'initial'
     }
   };
+  
   let state = loadState();
 
   function loadState() {
@@ -157,7 +177,10 @@
         }
         return mergeDeep(JSON.parse(JSON.stringify(DEFAULT_STATE)), savedState); 
       }
-      catch (e) { console.error("Load state error:", e); showToast("Could not load saved data.", "error"); }
+      catch (e) { 
+        console.error("Load state error:", e); 
+        showToast("Could not load saved data.", "error"); 
+      }
     }
     return JSON.parse(JSON.stringify(DEFAULT_STATE));
   }
@@ -172,7 +195,9 @@
     } 
   }
 
-  function isObject(item) { return (item && typeof item === 'object' && !Array.isArray(item)); }
+  function isObject(item) { 
+    return (item && typeof item === 'object' && !Array.isArray(item)); 
+  }
   
   function mergeDeep(target, source) {
     let o = { ...target };
@@ -188,37 +213,58 @@
   }
 
   function addActivity(text) { 
-    const MAX=20; 
-    state.activities.unshift({id:uid('act'), text, ts: new Date().toISOString()}); 
+    const MAX = 20; 
+    state.activities.unshift({id: uid('act'), text, ts: new Date().toISOString()}); 
     state.activities.length = Math.min(state.activities.length, MAX); 
     renderActivityFeed(); 
   }
 
   // Enhanced initialization
   function init() {
+    initAuth();
+    setupSignOut();
+    preventBackNavigation();
+    
+    // Apply settings
     applyDark(state.settings.darkMode);
     if (darkModeToggle) darkModeToggle.checked = state.settings.darkMode;
     if (notificationToggle) notificationToggle.checked = state.settings.notifications;
     if (showCompletedToggle) showCompletedToggle.checked = state.settings.showCompleted;
     updateThemeButtonIcon();
-    setDynamicUserUI();
-    if (copyrightYearEl) copyrightYearEl.textContent = `© ${new Date().getFullYear()}`;
-    switchView(state.currentView, true);
-    renderTasks(); 
-    renderFocusBlock(); 
-    renderWeeklyProgress(); 
-    renderActivityFeed();
-    updateSubjectDatalist(); 
-    updateQuickAddTaskSubjects(); 
-    renderChat(); 
-    renderScheduleTasks();
-    if (taskDateInput) taskDateInput.valueAsDate = new Date();
-    addEventListeners();
-    startBreathingAnimation(); 
-    scheduleNotificationCheck(); 
-    updateStorageUsageDisplay(); 
-    checkNotificationStatus();
-    startWellnessTipCycle();
+    
+    // Wait for auth state
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        // Continue with app initialization
+        if (copyrightYearEl) {
+          copyrightYearEl.textContent = `© ${new Date().getFullYear()}`;
+        }
+        switchView(state.currentView, true);
+        renderTasks(); 
+        renderFocusBlock(); 
+        renderWeeklyProgress(); 
+        renderActivityFeed();
+        updateSubjectDatalist(); 
+        updateQuickAddTaskSubjects(); 
+        renderChat(); 
+        renderScheduleTasks();
+        if (taskDateInput) taskDateInput.valueAsDate = new Date();
+        addEventListeners(); 
+        
+        // Add PDF export functionality
+        if (exportDataBtn) {
+          exportDataBtn.addEventListener('click', exportProgressToPDF);
+        }
+        
+        startBreathingAnimation(); 
+        updateStorageUsageDisplay(); 
+        startWellnessTipCycle();
+        
+        if (loadingOverlay) {
+          loadingOverlay.setAttribute('aria-hidden', 'true');
+        }
+      }
+    });
   }
 
   function addEventListeners() {
@@ -241,7 +287,6 @@
     if (notificationToggle) notificationToggle.addEventListener('change', handleNotificationToggle);
     if (toggleThemeBtn) toggleThemeBtn.addEventListener('click', handleThemeToggleClick);
     if (clearDataBtn) clearDataBtn.addEventListener('click', handleClearData);
-    if (exportDataBtn) exportDataBtn.addEventListener('click', handleExportData);
     if (changeWellnessGameBtn) changeWellnessGameBtn.addEventListener('click', () => showToast("More wellness exercises coming soon!", 'info'));
     if (sortTasksByDateBtn) sortTasksByDateBtn.addEventListener('click', () => sortAndRenderTasks('date'));
     if (sortTasksByPriorityBtn) sortTasksByPriorityBtn.addEventListener('click', () => sortAndRenderTasks('priority'));
@@ -337,7 +382,11 @@
       done: id ? (state.tasks.find(t => t.id === id)?.done || false) : false,
       practicedOn: id ? (state.tasks.find(t => t.id === id)?.practicedOn || []) : []
     };
-    if (!d.title || !d.date) { showToast("Title & date required.", 'error'); setButtonLoading(addTaskBtn, addTaskBtnSpinner, addTaskBtnText, false, null, txt); return; }
+    if (!d.title || !d.date) { 
+      showToast("Title & date required.", 'error'); 
+      setButtonLoading(addTaskBtn, addTaskBtnSpinner, addTaskBtnText, false, null, txt); 
+      return; 
+    }
     if (id) updateTask(d); else addTask(d);
     clearTaskForm();
     updateSubjectDatalist(); updateQuickAddTaskSubjects(); renderFocusBlock(); renderScheduleTasks();
@@ -1046,19 +1095,12 @@
       });
     }
 
-    // Logout button
-    const logoutBtn = document.getElementById('logoutBtn');
-    if (logoutBtn) {
-      logoutBtn.addEventListener('click', () => {
-        localStorage.removeItem(STORAGE_KEY);
-        window.location.href = 'index.html';
-      });
-    }
-
-    // Profile button
+    // Profile button in avatar dropdown
     const profileBtn = document.getElementById('profileBtn');
     if (profileBtn) {
       profileBtn.addEventListener('click', () => {
+        const avatarDropdown = document.getElementById('avatarDropdown');
+        if (avatarDropdown) avatarDropdown.classList.remove('show');
         switchView('profile');
       });
     }
@@ -1143,7 +1185,7 @@
   function stopBreathingAnimation() { clearInterval(breathIntervalId); if (breathingCircle) breathingCircle.style.animation = 'none'; }
 
   // Toasts / confirm / utils
-  function showToast(message, type = 'success', duration = 3500) { 
+  function showToast(message, type = 'success', duration = 5000) { 
     if (!toastContainer) return null; 
     const id = uid('toast'); 
     const t = document.createElement('div'); 
@@ -1156,10 +1198,22 @@
       case 'warning': i='⚠️'; break; 
       case 'info': i='ℹ️'; break; 
     } 
-    t.innerHTML = `<span class="toast-icon">${i}</span> <span>${escapeHtml(message)}</span>`; 
+    
+    // Add close button
+    t.innerHTML = `
+        <span class="toast-icon">${i}</span> 
+        <span class="toast-message">${escapeHtml(message)}</span>
+        <button class="toast-close" onclick="dismissToast('${id}')">&times;</button>
+    `; 
+    
     toastContainer.prepend(t); 
     requestAnimationFrame(()=>t.classList.add('show')); 
-    if (duration > 0) setTimeout(()=>dismissToast(id), duration); 
+    
+    // Auto-dismiss after specified duration
+    if (duration > 0) {
+        setTimeout(()=>dismissToast(id), duration); 
+    }
+    
     return id; 
   }
 
@@ -1167,8 +1221,8 @@
     if (!toastContainer) return; 
     const t = qs(`[data-toast-id="${id}"]`, toastContainer); 
     if (t) { 
-      t.classList.remove('show'); 
-      t.addEventListener('transitionend', ()=>t.remove(), { once: true }); 
+        t.classList.remove('show'); 
+        t.addEventListener('transitionend', ()=>t.remove(), { once: true }); 
     } 
   }
 
@@ -1222,39 +1276,309 @@
   function handleNotificationToggle(e){ state.settings.notifications = e.target.checked; saveState(); showToast(e.target.checked ? "Reminders enabled" : "Reminders disabled", 'info'); }
   function handleClearData(){ showConfirmModal("Clear data?", "This will clear all local data for this app. Continue?", () => { localStorage.removeItem(STORAGE_KEY); state = JSON.parse(JSON.stringify(DEFAULT_STATE)); saveState(); renderTasks(); renderFocusBlock(); renderActivityFeed(); showToast("Local data cleared.", 'info'); }); }
 
+  // PDF Export Function
+  function exportProgressToPDF() {
+    try {
+      showToast('Generating progress report...', 'info');
+      
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      
+      const pageWidth = doc.internal.pageSize.getWidth();
+      let yPosition = 20;
+
+      // Header
+      doc.setFillColor(0, 212, 255);
+      doc.rect(0, 0, pageWidth, 40, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(20);
+      doc.setFont('helvetica', 'bold');
+      doc.text('EduFlow Pro Progress Report', pageWidth / 2, 20, { align: 'center' });
+      
+      doc.setFontSize(10);
+      doc.text(`Generated: ${new Date().toLocaleDateString()}`, pageWidth / 2, 30, { align: 'center' });
+
+      yPosition = 50;
+      doc.setTextColor(0, 0, 0);
+
+      // User Info
+      doc.setFontSize(16);
+      doc.text('User Profile', 20, yPosition);
+      yPosition += 15;
+      
+      doc.setFontSize(10);
+      doc.text(`Username: ${state.profile.username}`, 20, yPosition);
+      yPosition += 7;
+      doc.text(`Email: ${state.profile.email || 'Not set'}`, 20, yPosition);
+      yPosition += 7;
+      doc.text(`Study Focus: ${state.profile.studyFocus || 'Not set'}`, 20, yPosition);
+      yPosition += 15;
+
+      // Statistics
+      doc.setFontSize(16);
+      doc.text('Study Statistics', 20, yPosition);
+      yPosition += 15;
+      
+      doc.setFontSize(10);
+      const stats = [
+        `Total Tasks: ${state.tasks.length}`,
+        `Completed Tasks: ${state.tasks.filter(task => task.done).length}`,
+        `Current Streak: ${state.stats.streak} days`,
+        `Quizzes Taken: ${state.stats.totalQuizzes}`,
+        `Focus Hours: ${state.stats.totalFocusHours}`,
+        `Subjects: ${new Set(state.tasks.map(task => task.subject)).size}`
+      ];
+
+      stats.forEach(stat => {
+        if (yPosition > 250) {
+          doc.addPage();
+          yPosition = 20;
+        }
+        doc.text(stat, 20, yPosition);
+        yPosition += 7;
+      });
+
+      yPosition += 10;
+
+      // Recent Tasks
+      doc.setFontSize(16);
+      doc.text('Recent Tasks', 20, yPosition);
+      yPosition += 15;
+      
+      doc.setFontSize(8);
+      const recentTasks = state.tasks.slice(-10).reverse();
+      recentTasks.forEach(task => {
+        if (yPosition > 250) {
+          doc.addPage();
+          yPosition = 20;
+        }
+        const status = task.done ? '✓' : '○';
+        const taskText = `${status} ${task.title} (${task.subject}) - Due: ${new Date(task.date).toLocaleDateString()}`;
+        doc.text(taskText, 20, yPosition, { maxWidth: 170 });
+        yPosition += 10;
+      });
+
+      // Save the PDF
+      const fileName = `EduFlow_Progress_${new Date().toISOString().split('T')[0]}.pdf`;
+      doc.save(fileName);
+      
+      showToast('Progress report exported successfully!', 'success');
+      
+    } catch (error) {
+      console.error('PDF export error:', error);
+      showToast('Failed to export progress report', 'error');
+    }
+  }
+
+  // Firebase Auth State Management
+  function initAuth() {
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        // User is signed in
+        console.log("User is signed in:", user.email);
+        setDynamicUserUI(user);
+        loadUserProfile(user);
+      } else {
+        // User is signed out, redirect to index.html
+        console.log("User is signed out, redirecting...");
+        window.location.replace('index.html');
+      }
+    });
+  }
+
+  // Enhanced user UI with Firebase data
+  function setDynamicUserUI(user) {
+    const username = user.displayName || user.email.split('@')[0] || 'User';
+    const hour = new Date().getHours();
+    
+    let greeting = "Hello";
+    if (hour < 12) greeting = "Good Morning";
+    else if (hour < 18) greeting = "Good Afternoon";
+    else greeting = "Good Evening";
+
+    // Update greeting dynamically
+    if (welcomeMessageEl) welcomeMessageEl.textContent = `${greeting}, ${username}!`;
+
+    // Generate dynamic avatar based on user data
+    const avatarEl = document.getElementById('userAvatar');
+    if (avatarEl) {
+      avatarEl.innerHTML = generateDynamicAvatar(username, user.email, state.profile.avatarStyle);
+    }
+
+    // Update profile data in state
+    state.profile.username = username;
+    state.profile.email = user.email;
+    saveState();
+  }
+
+  // Load user profile from Firestore
+  async function loadUserProfile(user) {
+    try {
+      const userDoc = await db.collection('users').doc(user.uid).get();
+      if (userDoc.exists) {
+        const userData = userDoc.data();
+        
+        // Update state with Firestore data
+        state.profile.username = userData.name || user.displayName || user.email.split('@')[0];
+        state.profile.email = user.email;
+        state.profile.studyFocus = userData.studyFocus || '';
+        state.profile.bio = userData.bio || '';
+        
+        // Update join date from Firestore
+        if (userData.createdAt) {
+          state.stats.joinDate = userData.createdAt.toDate().toISOString();
+        }
+        
+        saveState();
+        
+        // Update UI if we're on the profile page
+        if (state.currentView === 'profile') {
+          renderProfilePage();
+        }
+      }
+    } catch (error) {
+      console.error("Error loading user profile:", error);
+    }
+  }
+
+  // Enhanced sign out function
+  function setupSignOut() {
+    const signoutBtn = document.getElementById('signoutBtn');
+    const avatarDropdown = document.getElementById('avatarDropdown');
+    const userAvatar = document.getElementById('userAvatar');
+
+    if (signoutBtn) {
+      signoutBtn.addEventListener('click', async () => {
+        try {
+          // Show loading state
+          showToast('Signing out...', 'info');
+          
+          // Sign out from Firebase
+          await auth.signOut();
+          
+          // Clear local storage
+          localStorage.removeItem(STORAGE_KEY);
+          localStorage.removeItem('username');
+          localStorage.removeItem('userEmail');
+          localStorage.removeItem('userId');
+          localStorage.removeItem('rememberMe');
+          localStorage.removeItem('savedEmail');
+          
+          // Redirect to index.html and replace history
+          window.location.replace('index.html');
+          
+        } catch (error) {
+          console.error('Error signing out:', error);
+          showToast('Error signing out. Please try again.', 'error');
+        }
+      });
+    }
+
+    // Toggle dropdown
+    if (userAvatar && avatarDropdown) {
+      userAvatar.addEventListener('click', (e) => {
+        e.stopPropagation();
+        avatarDropdown.classList.toggle('show');
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', () => {
+        avatarDropdown.classList.remove('show');
+      });
+    }
+  }
+
+  // Enhanced profile page rendering with Firebase data
+  function renderProfilePage() {
+    const user = auth.currentUser;
+    if (!user) return;
+    
+    if (profileUserName) {
+      profileUserName.textContent = state.profile.username;
+    }
+    
+    if (profileUserEmail) {
+      profileUserEmail.textContent = user.email;
+    }
+    
+    if (profileJoinDate) {
+      profileJoinDate.textContent = new Date(state.stats.joinDate).toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'long' 
+      });
+    }
+    
+    // Update form fields
+    if (profileUsername) profileUsername.value = state.profile.username;
+    if (profileEmail) profileEmail.value = user.email;
+    if (profileStudyFocus) profileStudyFocus.value = state.profile.studyFocus || '';
+    if (profileBio) profileBio.value = state.profile.bio || '';
+    
+    // Update avatar
+    updateProfileAvatar();
+    
+    // Update statistics
+    updateProfileStatistics();
+    
+    // Update analytics
+    updateStudyAnalytics();
+  }
+
+  // Enhanced profile save function
+  async function handleProfileSubmit(e) {
+    e.preventDefault();
+    
+    const user = auth.currentUser;
+    if (!user) {
+      showToast('You must be logged in to update your profile.', 'error');
+      return;
+    }
+    
+    try {
+      // Update state
+      state.profile.username = profileUsername.value.trim() || 'User';
+      state.profile.studyFocus = profileStudyFocus.value.trim();
+      state.profile.bio = profileBio.value.trim();
+      
+      // Update in Firestore
+      await db.collection('users').doc(user.uid).set({
+        name: state.profile.username,
+        email: user.email,
+        studyFocus: state.profile.studyFocus,
+        bio: state.profile.bio,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      }, { merge: true });
+      
+      // Update Firebase Auth display name if changed
+      if (user.displayName !== state.profile.username) {
+        await user.updateProfile({
+          displayName: state.profile.username
+        });
+      }
+      
+      saveState();
+      renderProfilePage();
+      setDynamicUserUI(user);
+      showToast('Profile updated successfully!', 'success');
+      
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      showToast('Error updating profile. Please try again.', 'error');
+    }
+  }
+
+  // Prevent back navigation after sign out
+  function preventBackNavigation() {
+    window.history.pushState(null, null, window.location.href);
+    window.onpopstate = function() {
+      const user = auth.currentUser;
+      if (!user) {
+        window.location.replace('index.html');
+      }
+    };
+  }
+
   // run
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 
 })();
-
-// ✅ Sidebar Navigation Fix
-document.addEventListener("DOMContentLoaded", () => {
-  const navItems = document.querySelectorAll(".nav-item");
-  const sections = document.querySelectorAll("main > section[data-view]");
-  const mainTitle = document.getElementById("mainTitle");
-
-  function switchView(targetView) {
-    sections.forEach(sec => {
-      sec.hidden = sec.dataset.view !== targetView;
-    });
-
-    navItems.forEach(btn => {
-      btn.classList.toggle("active", btn.dataset.nav === targetView);
-    });
-
-    // Update main title
-    const activeBtn = document.querySelector(`.nav-item[data-nav="${targetView}"] span`);
-    if (activeBtn) mainTitle.textContent = activeBtn.textContent.trim();
-  }
-
-  // Initial view
-  switchView("dashboard");
-
-  // Navigation click events
-  navItems.forEach(btn => {
-    btn.addEventListener("click", () => {
-      const targetView = btn.dataset.nav;
-      switchView(targetView);
-    });
-  });
-});
