@@ -8,9 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
   
@@ -35,11 +33,14 @@
     </aside>
 
     <main class="content">
-
       <header class="title-block">
         <h1 id="mainTitle">Dashboard</h1>
         <div class="user-info">
           <span id="welcomeMessage">Loading...</span>
+          <div class="real-time-status">
+            <span class="status-indicator online" title="Real-time updates active"></span>
+            <span class="current-time" id="currentTime"></span>
+          </div>
           <div class="user-avatar" id="userAvatar">
             <div class="avatar-initial">U</div>
           </div>
@@ -60,8 +61,24 @@
               <div class="progress-bar"><div id="focusProgressBar" style="width: 0%;"></div></div>
               <span id="focusProgressPct">0%</span>
             </div>
+            
+            <!-- Added Quiz Settings -->
+            <div class="quiz-settings">
+              <label for="quizQuestionCount">Quiz Questions:</label>
+              <input type="number" id="quizQuestionCount" min="1" max="20" value="5" class="form-input small">
+              <label for="quizDifficulty">Difficulty:</label>
+              <select id="quizDifficulty" class="form-input small">
+                <option value="beginner">Beginner</option>
+                <option value="intermediate" selected>Intermediate</option>
+                <option value="advanced">Advanced</option>
+              </select>
+            </div>
+            
             <div id="focusTasks" class="focus-tasks-list"></div>
-            <button id="startFocusSessionBtn" class="btn">Start Focus Session (Quiz)</button>
+            <div class="quiz-action-buttons">
+              <button id="startFocusSessionBtn" class="btn">Start Focus Session (Standard Quiz)</button>
+              <button id="generateQuizBtn" class="btn outline">Generate AI Quiz</button>
+            </div>
           </div>
 
           <div class="content-block weekly-progress">
@@ -86,6 +103,21 @@
             <ul id="activityList">
               <li>No recent activity.</li>
             </ul>
+          </div>
+        </div>
+
+        <div class="live-stats">
+          <div class="stat-card realtime">
+            <div class="stat-number live-counter" id="liveTaskCount">0</div>
+            <div class="stat-label">Active Tasks</div>
+          </div>
+          <div class="stat-card realtime">
+            <div class="stat-number live-counter" id="liveFocusTime">0m</div>
+            <div class="stat-label">Focus Time</div>
+          </div>
+          <div class="stat-card realtime">
+            <div class="stat-number live-counter" id="liveCompletionRate">0%</div>
+            <div class="stat-label">Completion Rate</div>
           </div>
         </div>
 
@@ -419,10 +451,6 @@
     </div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="firebase-config.js"></script>
-  <script src="script.js" defer></script>
   <script src="script.js"></script>
 </body>
 </html>
-
